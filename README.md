@@ -1,30 +1,23 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/zeit/next.js/tree/canary/packages/create-next-app).
+# ![마스크인포 대문 이미지](logo.png)
 
-## Getting Started
+> ### 공적 마스크 판매 현황 조회 API 기반 전국 약국 실시간 마스크 재고 알리미
 
-First, run the development server:
+---
+
+### [마스크인포 사이트 바로가기](https://mask-info.now.sh/)
+
+본 서비스는 현재 최소 기능 구현 단계입니다.
+
+버그 수정은 풀리퀘스트를 통해서 기여해주시고, 피드백은 해당 저장소 이슈 탭에서 올려주시면 감사하겠습니다. 🙏
+
+<br/>
+
+## Getting started
+
+To get the frontend running locally:
 
 ```bash
-npm run dev
-# or
-yarn dev
+git clone https://github.com/reck1ess/mask-info.git # Clone this repo
+npm install #to install all dependencies
+npm run dev # to start the local server
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/zeit/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on ZEIT Now
-
-The easiest way to deploy your Next.js app is to use the [ZEIT Now Platform](https://zeit.co/) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
