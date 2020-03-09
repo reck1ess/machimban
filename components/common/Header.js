@@ -26,7 +26,7 @@ const Header = () => {
             position: absolute;
             width: 100%;
             height: 58px;
-            background: #9c88ff;
+            background: #8c7ae6;
             display: flex;
             align-items: center;
             justify-content: flex-start;

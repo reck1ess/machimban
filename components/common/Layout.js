@@ -8,7 +8,6 @@ const Layout = ({ children }) => (
     <Header />
     {children}
     <GPSIcon />
-    
   </React.Fragment>
 );
 
