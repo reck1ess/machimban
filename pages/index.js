@@ -1,45 +1,19 @@
 import dynamic from "next/dynamic";
 import React from "react";
-import useSWR from "swr";
 
-import PositionContext from "../lib/context/PositionContext";
-import useIsMounted from "../lib/hooks/useIsMounted";
-import {
-  SERVER_BASE_URL,
-  STORES_BY_GEO_CODE,
-  DEFAULT_POSITION,
-  CURRENT_STORE
-} from "../lib/utils/constant";
+import { SERVER_BASE_URL, STORES_BY_GEO_CODE } from "../lib/utils/constant";
 import fetcher from "../lib/utils/fetcher";
-import BlankContainer from "../components/common/BlankContainer";
 
-const Home = () => {
-  const {
-    position: { _lat, _lng }
-  } = React.useContext(PositionContext);
-
-  // const { data: fetchedStores } = useSWR(
-  //   `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${_lat}&lng=${_lng}&m=10000`,
-  //   fetcher,
-  //   {
-  //     initialData: initialStores
-  //   }
-  // );
-
-  // const { stores, count } = fetchedStores || initialStores;
-
-  const stores = CURRENT_STORE;
-
+const Home = ({ stores }) => {
   const NaverMapContainer = dynamic(
-    import("../components/map/NaverMapContainer")
+    () => import("../components/map/NaverMapContainer"),
+    { ssr: false }
   );
-
 
   return (
     <React.Fragment>
       <main>
         <NaverMapContainer stores={stores} />
-        <LoadingSpinner />
       </main>
       <style jsx>{`
         main {
@@ -62,12 +36,11 @@ const Home = () => {
   );
 };
 
-// Home.getInitialProps = async () => {
-//   const { _lat, _lng } = DEFAULT_POSITION;
-//   const stores = await fetcher(
-//     `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${_lat}&lng=${_lng}&m=10000`
-//   );
-//   return { stores };
-// };
+Home.getInitialProps = async () => {
+  const stores = await fetcher(
+    `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=37.5666103&lng=126.9783882&m=1500`
+  );
+  return { stores };
+};
 
 export default Home;

@@ -6,7 +6,7 @@ const Header = () => {
   return (
     <header>
       <CustomLink href="/" as="/">
-        <span className="main-logo">😷</span>
+        <img className="main-logo" src="/logo.svg" alt="메인 로고" />
       </CustomLink>
       <ul className="navbar">
         <li className="nav-item">
@@ -38,7 +38,9 @@ const Header = () => {
           }
           .main-logo {
             position: relative;
-            padding-left: 16px;
+            margin: 11px;
+            width: 36px;
+            height: 36px;
             cursor: pointer;
           }
           .navbar {

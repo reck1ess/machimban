@@ -79,12 +79,12 @@ class MyDocument extends Document {
             property="twitter:image"
             content="https://mask-info.now.sh/images/talk-link.jpg"
           />
-          <meta name="msapplication-TileColor" content="#9c88ff" />
+          <meta name="msapplication-TileColor" content="#8c7ae6" />
           <meta
             name="msapplication-TileImage"
             content="/images/ms-icon-144x144.png"
           />
-          <meta name="theme-color" content="#9c88ff" />
+          <meta name="theme-color" content="#8c7ae6" />
           <link
             rel="apple-touch-icon"
             sizes="57x57"
@@ -154,6 +154,7 @@ class MyDocument extends Document {
             sizes="16x16"
             href="/images/favicon-16x16.png"
           />
+          <link rel="stylesheet" type="text/css" href="/nprogress.css" />
           <link rel="manifest" href="/manifest.json" />
           <style type="text/css">{globalStyles}</style>
           <script

@@ -1,8 +1,8 @@
 {
   "name": "마스크인포",
   "short_name": "마스크인포",
-  "theme_color": "#9c88ff",
-  "background_color": "#9c88ff",
+  "theme_color": "#8c7ae6",
+  "background_color": "#8c7ae6",
   "display": "standalone",
   "orientation": "portrait",
   "Scope": "/",

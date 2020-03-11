@@ -1,29 +1,28 @@
+import NProgress from "nprogress";
 import React from "react";
 
 import PositionContext from "../../lib/context/PositionContext";
 
 const GPSIcon = () => {
   const { position, setPosition } = React.useContext(PositionContext);
-  const [loading, setLoading] = React.useState(false);
 
   const handleGPS = async () => {
     try {
- setLoading(true);
-    await navigator.geolocation.getCurrentPosition(
-      position =>
-        setPosition({
-          y: position.coords.latitude,
-          _lat: position.coords.latitude,
-          x: position.coords.longitude,
-          _lng: position.coords.longitude
-        }),
-      err => console.log(err)
-    );
-         
+      NProgress.start();
+      await navigator.geolocation.getCurrentPosition(
+        position =>
+          setPosition({
+            y: position.coords.latitude,
+            _lat: position.coords.latitude,
+            x: position.coords.longitude,
+            _lng: position.coords.longitude
+          }),
+        err => console.log(err)
+      );
     } catch (error) {
-      console.error(error);
+      window.alert(`위치 정보를 가져올 수 없습니다. GPS 옵션을 확인해주세요.`);
     } finally {
-      setLoading(false);
+      NProgress.done();
     }
   };
 
