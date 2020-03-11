@@ -1,36 +1,25 @@
 import React from "react";
 
-const ClusterIcon = ({ totalRemain }) => (
-  <div className="marker-container">
-    <div className="marker-presenter">
-      <span className="remain-stock">{totalRemain}+</span>
-    </div>
+const ClusterIcon = ({ pointCount, total }) => (
+  <div className="marker-presenter">
+    <span className="store-count">{pointCount}</span>
     <style jsx>{`
-      .marker-container {
-        position: relative;
-        &:hover,
-        &:active {
-          z-index: 2;
-          box-shadow: 0 0 0 4px #f3f0ff, 0 0 0 6px #e5dbff, 0 0 0 10px #9575cd;
-        }
-      }
       .marker-presenter {
+        position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         color: #000;
-        width: 55px;
-        height: 55px;
+        width: ${`${30 + (pointCount / total) * 60}px`};
+        height: ${`${30 + (pointCount / total) * 60}px`};
         border-radius: 50%;
-        background: #d0bfff;
-        box-shadow: 0 0 0 4px #e5dbff, 0 0 0 6px #f3f0ff,
-          0 0 0 10px rgba(255, 255, 255, 0.1);
+        background: #8c7ae6;
+        box-shadow: 0 0 0 3px #b197fc, 0 0 0 6px #d0bfff, 0 0 0 9px #e5dbff;
       }
-      .remain-stock {
+      .store-count {
         font-size: 14px;
         font-weight: 600;
-        opacity: 0.99;
       }
     `}</style>
   </div>

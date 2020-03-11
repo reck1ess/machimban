@@ -1,27 +1,30 @@
 import NProgress from "nprogress";
 import ReactDOMServer from "react-dom/server";
 import { Marker, NaverMap } from "react-naver-maps";
+import { toast } from "react-toastify";
 import useSWR, { trigger } from "swr";
+import useSupercluster from "use-supercluster";
 
+import ClusterIcon from "./ClusterIcon";
 import GPSIcon from "./GPSIcon";
 import MarkerIcon from "./MarkerIcon";
 import RefreshIcon from "./RefreshIcon";
-import ClusterIcon from "./ClusterIcon";
 
 import PositionContext from "../../lib/context/PositionContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useAsyncState from "../../lib/hooks/useAsyncState";
-import { SERVER_BASE_URL, STORES_BY_GEO_CODE } from "../../lib/utils/constant";
-import fetcher from "../../lib/utils/fetcher";
+import {
+  SERVER_BASE_URL,
+  STORES_BY_GEO_CODE,
+  NETWORK_ERROR_MESSAGE
+} from "../../lib/utils/constant";
 import convertDecimalPoint from "../../lib/utils/convertDecimalPoint";
-import convertRemainToNumber from "../../lib/utils/convertRemainToNumber";
 import convertZoomToMeter from "../../lib/utils/convertZoomToMeter";
-import chunkArrayInGroups from "../../lib/utils/chunkArrayInGroups";
+import fetcher from "../../lib/utils/fetcher";
 
 const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
   const mapRef = React.useRef();
-  const [naver] = React.useState(window.naver);
-  const [map, setMap] = React.useState(null);
+  const navermaps = window.naver.maps;
   const [bounds, setBounds] = React.useState(null);
   const [shownStores, setShownStores] = useAsyncState([]);
   const [oldShownStores, setOldShownStores] = useAsyncState([]);
@@ -30,14 +33,58 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
   const { zoom, setZoom } = React.useContext(ZoomContext);
   const { _lat, _lng } = position;
 
-  const { data: fetchedStores } = useSWR(
-    `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
-      _lat
-    )}&lng=${convertDecimalPoint(_lng)}&m=${convertZoomToMeter(zoom)}`,
-    fetcher
+  let url = `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
+    _lat
+  )}&lng=${convertDecimalPoint(_lng)}&m=${convertZoomToMeter(zoom)}`;
+
+  const { data: fetchedStores, error } = useSWR(url, fetcher);
+
+  if (error) {
+    toast.error(NETWORK_ERROR_MESSAGE, {
+      position: toast.POSITION.BOTTOM_CENTER
+    });
+  }
+
+  const { stores = [] } = fetchedStores || initialStores;
+
+  const points = stores.map(
+    ({
+      code,
+      type,
+      name,
+      addr,
+      remain_stat,
+      stock_at,
+      created_at,
+      lat,
+      lng
+    }) => ({
+      type: "Feature",
+      properties: {
+        cluster: false,
+        code,
+        type,
+        name,
+        addr,
+        remain_stat,
+        stock_at,
+        created_at
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [parseFloat(lng), parseFloat(lat)]
+      }
+    })
   );
 
-  const { stores } = fetchedStores || initialStores;
+  const { clusters, supercluster } = useSupercluster({
+    points,
+    bounds: !!bounds
+      ? [bounds._sw._lng, bounds._sw._lat, bounds._ne._lng, bounds._ne._lat]
+      : [],
+    zoom,
+    options: { radius: 200, maxZoom: 14 }
+  });
 
   const handleZoom = async zoomLevel => {
     NProgress.start();
@@ -51,7 +98,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
       const lat = oldStore.lat;
       const lng = oldStore.lng;
 
-      if (bounds.hasLatLng(new naver.maps.LatLng(lat, lng))) {
+      if (bounds.hasLatLng(new navermaps.LatLng(lat, lng))) {
         oldMarkerList.push(oldStore);
       }
     }
@@ -66,17 +113,14 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
       const lat = currentStore.lat;
       const lng = currentStore.lng;
 
-      if (bounds.hasLatLng(new naver.maps.LatLng(lat, lng))) {
+      if (bounds.hasLatLng(new navermaps.LatLng(lat, lng))) {
         markerList.push(currentStore);
       }
     }
 
     await setShownStores([...oldShownStores, ...markerList]);
-    trigger(
-      `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
-        _lat
-      )}&lng=${convertDecimalPoint(_lng)}&m=${convertZoomToMeter(zoom)}`
-    );
+    trigger(url);
+
     NProgress.done();
   };
 
@@ -92,7 +136,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
       const lat = oldStore.lat;
       const lng = oldStore.lng;
 
-      if (bounds.hasLatLng(new naver.maps.LatLng(lat, lng))) {
+      if (bounds.hasLatLng(new navermaps.LatLng(lat, lng))) {
         oldMarkerList.push(oldStore);
       }
     }
@@ -107,17 +151,14 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
       const lat = currentStore.lat;
       const lng = currentStore.lng;
 
-      if (bounds.hasLatLng(new naver.maps.LatLng(lat, lng))) {
+      if (bounds.hasLatLng(new navermaps.LatLng(lat, lng))) {
         markerList.push(currentStore);
       }
     }
 
     await setShownStores([...oldShownStores, ...markerList]);
-    trigger(
-      `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
-        _lat
-      )}&lng=${convertDecimalPoint(_lng)}&m=${convertZoomToMeter(zoom)}`
-    );
+    trigger(url);
+
     NProgress.done();
   };
 
@@ -129,83 +170,19 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     await setShownStores(initialStores);
   };
 
+  const handleClick = (e, cluster) => {
+    const expansionZoom = Math.min(
+      supercluster.getClusterExpansionZoom(cluster.id),
+      15
+    );
+    setZoom(expansionZoom);
+    mapRef.current.panTo(e.coord);
+  };
+
   React.useEffect(() => {
     handleShownStores(stores);
     handleChageBounds(mapRef.current.getBounds());
   }, []);
-
-  React.useEffect(() => {
-    setMap(naver.maps);
-  }, [naver.maps]);
-
-  if (zoom > 14) {
-    return (
-      <NaverMap
-        id="react-naver-map"
-        style={{
-          width: "100%",
-          height: "100%"
-        }}
-        naverRef={mapRef}
-        center={position}
-        onCenterChanged={handleCenterChange}
-        zoom={Math.min(18, Math.max(zoom, 6))}
-        onZoomChanged={handleZoom}
-        bounds={bounds}
-        onBoundsChanged={handleChageBounds}
-        {...props}
-      >
-        {stores &&
-          stores.map(
-            ({ lat, lng, remain_stat, stock_at, created_at }, index) => (
-              <Marker
-                key={index}
-                position={new naver.maps.LatLng(lat, lng)}
-                icon={{
-                  content: ReactDOMServer.renderToString(
-                    <MarkerIcon
-                      remain_stat={remain_stat}
-                      stock_at={stock_at}
-                      created_at={created_at}
-                    />
-                  ),
-                  anchor: new window.naver.maps.Point(8, 46)
-                }}
-              />
-            )
-          )}
-        <GPSIcon />
-        <RefreshIcon setShownStores={setShownStores} />
-      </NaverMap>
-    );
-  }
-
-  const length = stores.length;
-  const chunkList = chunkArrayInGroups(stores, Math.round(length / (zoom - 5)));
-
-  let latSum = 0;
-  let lngSum = 0;
-  let remainSum = 0;
-  const clusterMarkers = [];
-
-  chunkList.forEach(chunk => {
-    chunk.forEach(store => {
-      latSum += store.lat;
-      lngSum += store.lng;
-      remainSum += convertRemainToNumber(store.remain_stat);
-    });
-
-    clusterMarkers.push({
-      latAvg: latSum / chunk.length,
-      lngAvg: lngSum / chunk.length,
-      totalRemain: remainSum,
-      storeCount: chunk.length
-    });
-
-    latSum = 0;
-    lngSum = 0;
-    remainSum = 0;
-  });
 
   return (
     <NaverMap
@@ -223,18 +200,58 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
       onBoundsChanged={handleChageBounds}
       {...props}
     >
-      {clusterMarkers &&
-        clusterMarkers.map(({ latAvg, lngAvg, totalRemain }, index) => (
-          <Marker
-            key={index}
-            position={new naver.maps.LatLng(latAvg, lngAvg)}
-            icon={{
-              content: ReactDOMServer.renderToString(
-                <ClusterIcon totalRemain={totalRemain} />
-              )
-            }}
-          />
-        ))}
+      {clusters.map((cluster, index) => {
+        const [longitude, latitude] = cluster.geometry.coordinates;
+        const {
+          cluster: isCluster,
+          point_count: pointCount,
+          remain_stat,
+          stock_at,
+          created_at
+        } = cluster.properties;
+
+        if (isCluster) {
+          return (
+            <Marker
+              key={index}
+              clickable={true}
+              onClick={e => handleClick(e, cluster)}
+              position={new navermaps.LatLng(latitude, longitude)}
+              icon={{
+                content: ReactDOMServer.renderToString(
+                  <ClusterIcon pointCount={pointCount} total={points.length} />
+                )
+              }}
+            />
+          );
+        } else {
+          return (
+            <Marker
+              key={index}
+              position={new navermaps.LatLng(latitude, longitude)}
+              onClick={() => {
+                console.log("click!!!");
+                const expansionZoom = Math.min(
+                  supercluster.getClusterExpansionZoom(cluster.id),
+                  14
+                );
+                setZoom(expansionZoom);
+                mapRef.current.panTo(new navermaps.LatLng(lat, lng));
+              }}
+              icon={{
+                content: ReactDOMServer.renderToString(
+                  <MarkerIcon
+                    remain_stat={remain_stat}
+                    stock_at={stock_at}
+                    created_at={created_at}
+                  />
+                ),
+                anchor: new navermaps.Point(8, 46)
+              }}
+            />
+          );
+        }
+      })}
       <GPSIcon />
       <RefreshIcon setShownStores={setShownStores} />
     </NaverMap>
