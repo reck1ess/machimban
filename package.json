@@ -18,7 +18,10 @@
     "react": "16.13.0",
     "react-dom": "16.13.0",
     "react-naver-maps": "0.0.13",
+    "react-toastify": "^5.5.0",
     "styled-jsx-plugin-sass": "^1.0.0",
-    "swr": "^0.1.18"
+    "supercluster": "^7.0.0",
+    "swr": "^0.1.18",
+    "use-supercluster": "^0.2.5"
   }
 }
