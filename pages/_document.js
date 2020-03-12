@@ -44,32 +44,32 @@ class MyDocument extends Document {
           />
           <meta name="robots" content="index, follow" />
           <meta name="google" content="notranslate" />
-          <meta name="title" content="마스크인포 - 공적 마스크 재고 알리미" />
+          <meta name="title" content="마침반 - 공적 마스크 재고 알리미" />
           <meta name="keywords" content="공적 마스크 재고 알리미" />
           <meta
             name="description"
             content="전국 약국의 공적 마스크 재고를 지도에서 한눈에! 마스크에 대한 모든 정보를 확인할 수 있어요."
           />
           <meta property="og:locale" content="ko_KR" />
-          <meta property="og:site_name" content="마스크인포" />
+          <meta property="og:site_name" content="마침반" />
           <meta
             property="og:title"
-            content="마스크인포 - 공적 마스크 재고 알리미"
+            content="마침반 - 공적 마스크 재고 알리미"
           />
           <meta
             property="og:description"
             content="전국 약국의 공적 마스크 재고를 지도에서 한눈에! 마스크에 대한 모든 정보를 확인할 수 있어요."
           />
-          <meta property="og:url" content="https://mask-info.now.sh/" />
+          <meta property="og:url" content="https://machimban.com/" />
           <meta
             property="og:image"
-            content="https://mask-info.now.sh/images/share-link.png"
+            content="https://machimban.com/images/share-link.png"
           />
-          <meta property="twitter:card" content="마스크인포" />
-          <meta property="twitter:url" content="https://mask-info.now.sh/" />
+          <meta property="twitter:card" content="마침반" />
+          <meta property="twitter:url" content="https://machimban.com/" />
           <meta
             property="twitter:title"
-            content="마스크인포 - 공적 마스크 재고 알리미"
+            content="마침반 - 공적 마스크 재고 알리미"
           />
           <meta
             property="twitter:description"
@@ -77,7 +77,7 @@ class MyDocument extends Document {
           />
           <meta
             property="twitter:image"
-            content="https://mask-info.now.sh/images/talk-link.jpg"
+            content="https://machimban.com/images/talk-link.jpg"
           />
           <meta name="msapplication-TileColor" content="#8c7ae6" />
           <meta
@@ -163,10 +163,11 @@ class MyDocument extends Document {
               __html: `{
               "@context": "http://schema.org/",
               "@type": "Organization",
-              "url": "https://mask-info.now.sh/",
-              "logo": "https://mask-info.now.sh/images/share-link.png",
+              "url": "https://machimban.com/",
+              "logo": "https://machimban.com/images/share-link.png",
               "sameAs": [
-                "https://www.facebook.com/mask-info",
+                "https://www.facebook.com/machimban/",
+                "https://www.instagram.com/machimban/",
               ],
             }`
             }}
