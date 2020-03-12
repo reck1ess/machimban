@@ -161,7 +161,10 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
 
     while (j--) {
       const { _lat, _lng } = markerList[j].props.position;
-      if (bounds && !bounds.hasLatLng(new navermaps.LatLng(_lat, _lng))) {
+      if (!bounds) {
+        return;
+      }
+      if (!bounds.hasLatLng(new navermaps.LatLng(_lat, _lng))) {
         markerList.splice(j, 1);
       }
     }
