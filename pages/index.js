@@ -7,9 +7,11 @@ import Maybe from "../components/common/Maybe";
 import {
   SERVER_BASE_URL,
   STORES_BY_GEO_CODE,
-  NETWORK_DELAY
+  NETWORK_DELAY,
+  NETWORK_WARNING_MESSAGE
 } from "../lib/utils/constant";
 import fetcher from "../lib/utils/fetcher";
+import notifyWarning from "../lib/utils/notifyWarning";
 
 const Home = ({ stores }) => {
   const [isLoading, setLoading] = React.useState(false);
@@ -25,6 +27,7 @@ const Home = ({ stores }) => {
           dedupingInterval: NETWORK_DELAY * 2,
           onLoadingSlow: () => {
             setLoading(true);
+            notifyWarning(NETWORK_WARNING_MESSAGE);
           },
           onSuccess: () => {
             setLoading(false);
@@ -33,7 +36,7 @@ const Home = ({ stores }) => {
             setLoading(false);
           },
           onErrorRetry: (error, key, option, revalidate, { retryCount }) => {
-            if (retryCount >= 5 || error.status === 404) {
+            if (retryCount >= 2 || error.status === 404) {
               setLoading(false);
               return;
             }

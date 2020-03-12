@@ -20,15 +20,15 @@ import {
 import convertDecimalPoint from "../../lib/utils/convertDecimalPoint";
 import convertZoomToMeter from "../../lib/utils/convertZoomToMeter";
 import fetcher from "../../lib/utils/fetcher";
-import notify from "../../lib/utils/notify";
+import notifyError from "../../lib/utils/notifyError";
 
 let markerList = [];
 
 const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
   const mapRef = React.useRef();
   const navermaps = window.naver.maps;
-  const [bounds, setBounds] = React.useState(null);
 
+  const [bounds, setBounds] = React.useState(null);
   const { position, setPosition } = React.useContext(PositionContext);
   const { zoom, setZoom } = React.useContext(ZoomContext);
   const { _lat, _lng } = position;
@@ -40,7 +40,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
   const { data: fetchedStores, error } = useSWR(url, fetcher);
 
   if (error) {
-    notify(NETWORK_ERROR_MESSAGE);
+    notifyError(NETWORK_ERROR_MESSAGE);
   }
 
   const { stores = [] } = fetchedStores || initialStores;
@@ -84,16 +84,16 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     options: { radius: 200, maxZoom: 16 }
   });
 
-  const handleZoom = async zoomLevel => {
+  const handleZoom = zoomLevel => {
     if (zoom === zoomLevel) {
       return;
     }
 
     try {
       NProgress.start();
-      setZoom(zoomLevel);
+      setZoom(Math.min(18, Math.max(zoomLevel, 9)));
     } catch (error) {
-      notify(NETWORK_ERROR_MESSAGE);
+      notifyError(NETWORK_ERROR_MESSAGE);
     } finally {
       NProgress.done();
     }
@@ -105,16 +105,12 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     }
   };
 
-  const handleCenterChange = async center => {
+  const handleCenterChange = center => {
     NProgress.start();
     setPosition(center);
     trigger(url);
     NProgress.done();
     setMarker();
-  };
-
-  const handleChageBounds = bounds => {
-    setBounds(bounds);
   };
 
   const handleClick = async (e, cluster) => {
@@ -168,12 +164,15 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
         markerList.splice(j, 1);
       }
     }
-
     markerList.push(...newMarkerList);
   };
 
+  const getBounds = React.useCallback(() => {
+    return mapRef.current.getBounds();
+  }, [mapRef]);
+
   React.useEffect(() => {
-    handleChageBounds(mapRef.current.getBounds());
+    setBounds(getBounds);
     setMarker();
   }, []);
 
@@ -187,10 +186,10 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
       naverRef={mapRef}
       center={position}
       onCenterChanged={handleCenterChange}
-      zoom={Math.min(18, Math.max(zoom, 9))}
+      zoom={zoom}
       onZoomChanged={handleZoom}
       bounds={bounds}
-      onBoundsChanged={handleChageBounds}
+      onBoundsChanged={() => setBounds(getBounds)}
       {...props}
     >
       <Maybe test={zoom < 16}>

@@ -11,7 +11,7 @@ import {
 } from "../../lib/utils/constant";
 import convertDecimalPoint from "../../lib/utils/convertDecimalPoint";
 import convertZoomToMeter from "../../lib/utils/convertZoomToMeter";
-import notify from "../../lib/utils/notify";
+import notifyError from "../../lib/utils/notifyError";
 
 const RefreshIcon = () => {
   const { zoom } = React.useContext(ZoomContext);
@@ -29,7 +29,7 @@ const RefreshIcon = () => {
       const { stores } = await response.json();
       mutate(url, { ...stores });
     } catch (error) {
-      notify(NETWORK_ERROR_MESSAGE);
+      notifyError(NETWORK_ERROR_MESSAGE);
     } finally {
       NProgress.done();
     }
