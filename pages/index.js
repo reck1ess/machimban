@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import Head from "next/head";
 import React from "react";
 import { SWRConfig } from "swr";
 
@@ -7,11 +8,11 @@ import Maybe from "../components/common/Maybe";
 import {
   SERVER_BASE_URL,
   STORES_BY_GEO_CODE,
-  NETWORK_DELAY,
-  NETWORK_WARNING_MESSAGE
+  APP_NAME,
+  HOME_TITLE
 } from "../lib/utils/constant";
+import delay from "../lib/utils/delay";
 import fetcher from "../lib/utils/fetcher";
-import notifyWarning from "../lib/utils/notifyWarning";
 
 const Home = ({ stores }) => {
   const [isLoading, setLoading] = React.useState(false);
@@ -22,11 +23,14 @@ const Home = ({ stores }) => {
 
   return (
     <React.Fragment>
+      <Head>
+        <title>{`${APP_NAME} | ${HOME_TITLE}`}</title>
+      </Head>
       <SWRConfig
         value={{
           onLoadingSlow: () => {
             setLoading(true);
-            notifyWarning(NETWORK_WARNING_MESSAGE);
+            delay(3000).then(() => setLoading(false));
           },
           onSuccess: () => {
             setLoading(false);
