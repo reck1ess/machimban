@@ -172,7 +172,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
   }, [mapRef]);
 
   React.useEffect(() => {
-    setBounds(getBounds);
+    setBounds(getBounds());
     setMarker();
   }, []);
 

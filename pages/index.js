@@ -24,7 +24,6 @@ const Home = ({ stores }) => {
     <React.Fragment>
       <SWRConfig
         value={{
-          dedupingInterval: NETWORK_DELAY * 2,
           onLoadingSlow: () => {
             setLoading(true);
             notifyWarning(NETWORK_WARNING_MESSAGE);
