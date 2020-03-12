@@ -1,27 +1,28 @@
 import React from "react";
 
+import { LOADING_IMAGE_SOURCE } from "../../lib/utils/constant";
+
 const LoadingSpinner = () => (
   <div className="loading-spinner">
     <style>
       {`
-        @keyframes spin {
-          0% { transform : rotate(0deg); }
-          100% { transform : rotate(360deg); }
-        }
         .loading-spinner {
-          position: relative;
-          width: 40px;
-          height: 40px;
-          margin: 90px auto;
-          border-radius: 50%;
-          border-top: 3px solid rgba(84, 44, 134, 0.1);
-          border-right: 3px solid rgba(84, 44, 134 0.1);
-          border-bottom: 3px solid rgba(84, 44, 134 0.1);
-          border-left: 3px solid #542c86;
-          transform: translateZ(0);
-          animation: spin 0.5s infinite linear;
+          content: url(${LOADING_IMAGE_SOURCE});
+          animation: loading  1s steps(12) infinite;
+          width: 10vw;
+          position: fixed;
+          top: calc(50vh - 5vw);
+          left: 45vw;
+          z-index: 9999;
         }
-        `}
+
+        @keyframes loading {
+          from  {
+            transform: rotate(0deg);
+          }
+          to {transform: rotate(360deg);}
+        }
+      `}
     </style>
   </div>
 );

@@ -1,10 +1,18 @@
 import dynamic from "next/dynamic";
 import React from "react";
+import { SWRConfig } from "swr";
 
-import { SERVER_BASE_URL, STORES_BY_GEO_CODE } from "../lib/utils/constant";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import Maybe from "../components/common/Maybe";
+import {
+  SERVER_BASE_URL,
+  STORES_BY_GEO_CODE,
+  NETWORK_DELAY
+} from "../lib/utils/constant";
 import fetcher from "../lib/utils/fetcher";
 
 const Home = ({ stores }) => {
+  const [isLoading, setLoading] = React.useState(false);
   const NaverMapContainer = dynamic(
     () => import("../components/map/NaverMapContainer"),
     { ssr: false }
@@ -12,9 +20,34 @@ const Home = ({ stores }) => {
 
   return (
     <React.Fragment>
-      <main>
-        <NaverMapContainer stores={stores} />
-      </main>
+      <SWRConfig
+        value={{
+          dedupingInterval: NETWORK_DELAY * 2,
+          onLoadingSlow: () => {
+            setLoading(true);
+          },
+          onSuccess: () => {
+            setLoading(false);
+          },
+          onError: () => {
+            setLoading(false);
+          },
+          onErrorRetry: (error, key, option, revalidate, { retryCount }) => {
+            if (retryCount >= 5 || error.status === 404) {
+              setLoading(false);
+              return;
+            }
+            setTimeout(() => revalidate({ retryCount: retryCount + 1 }), 3000);
+          }
+        }}
+      >
+        <main>
+          <NaverMapContainer stores={stores} />
+          <Maybe test={isLoading}>
+            <LoadingSpinner />
+          </Maybe>
+        </main>
+      </SWRConfig>
       <style jsx>{`
         main {
           position: relative;

@@ -4,11 +4,16 @@ import { mutate } from "swr";
 
 import PositionContext from "../../lib/context/PositionContext";
 import ZoomContext from "../../lib/context/ZoomContext";
-import { SERVER_BASE_URL, STORES_BY_GEO_CODE } from "../../lib/utils/constant";
+import {
+  SERVER_BASE_URL,
+  STORES_BY_GEO_CODE,
+  NETWORK_ERROR_MESSAGE
+} from "../../lib/utils/constant";
 import convertDecimalPoint from "../../lib/utils/convertDecimalPoint";
 import convertZoomToMeter from "../../lib/utils/convertZoomToMeter";
+import notify from "../../lib/utils/notify";
 
-const RefreshIcon = ({ setShownStores }) => {
+const RefreshIcon = () => {
   const { zoom } = React.useContext(ZoomContext);
   const { position } = React.useContext(PositionContext);
   const { _lat, _lng } = position;
@@ -23,9 +28,8 @@ const RefreshIcon = ({ setShownStores }) => {
       const response = await fetch(url);
       const { stores } = await response.json();
       mutate(url, { ...stores });
-      await setShownStores(stores);
     } catch (error) {
-      window.alert(`네트워크 오류가 발생했습니다.`);
+      notify(NETWORK_ERROR_MESSAGE);
     } finally {
       NProgress.done();
     }
