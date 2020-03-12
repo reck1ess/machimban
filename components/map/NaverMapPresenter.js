@@ -158,7 +158,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     while (j--) {
       const { _lat, _lng } = markerList[j].props.position;
       if (!bounds) {
-        return;
+        break;
       }
       if (!bounds.hasLatLng(new navermaps.LatLng(_lat, _lng))) {
         markerList.splice(j, 1);
@@ -189,7 +189,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
       zoom={zoom}
       onZoomChanged={handleZoom}
       bounds={bounds}
-      onBoundsChanged={() => setBounds(getBounds)}
+      onBoundsChanged={() => setBounds(getBounds())}
       {...props}
     >
       <Maybe test={zoom < 16}>
