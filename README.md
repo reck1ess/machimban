@@ -1,4 +1,4 @@
-# ![마침반 대문 이미지](logo.png)
+# ![마침반 대문 이미지](https://machimban.com/images/share-link.png)
 
 > ### 공적 마스크 판매 현황 조회 API 기반 전국 약국 실시간 마스크 재고 알리미
 
