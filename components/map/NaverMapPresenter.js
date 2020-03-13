@@ -12,6 +12,7 @@ import Maybe from "../common/Maybe";
 
 import PositionContext from "../../lib/context/PositionContext";
 import ZoomContext from "../../lib/context/ZoomContext";
+import useDebounce from "../../lib/hooks/useDebounce";
 import {
   SERVER_BASE_URL,
   STORES_BY_GEO_CODE,
@@ -25,18 +26,27 @@ import notifyError from "../../lib/utils/notifyError";
 let markerList = [];
 
 const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
+  /* 네이버 지도 ref */
   const mapRef = React.useRef();
   const navermaps = window.naver.maps;
 
+  /* 네이버 지도 관련 상태 */
   const [bounds, setBounds] = React.useState(null);
   const { position, setPosition } = React.useContext(PositionContext);
   const { zoom, setZoom } = React.useContext(ZoomContext);
   const { _lat, _lng } = position;
 
-  let url = `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
-    _lat
-  )}&lng=${convertDecimalPoint(_lng)}&m=${convertZoomToMeter(zoom)}`;
+  /* UI 이벤트 디바운스 */
+  const debouncedLat = useDebounce(_lat, 500);
+  const debouncedLng = useDebounce(_lng, 500);
+  const debouncedZoom = useDebounce(zoom, 500);
 
+  /* SWR 기반 API 호출 */
+  let url = `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
+    debouncedLat
+  )}&lng=${convertDecimalPoint(debouncedLng)}&m=${convertZoomToMeter(
+    debouncedZoom
+  )}`;
   const { data: fetchedStores, error } = useSWR(url, fetcher);
 
   if (error) {
@@ -45,6 +55,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
 
   const { stores = [] } = fetchedStores || initialStores;
 
+  /* supercluster 기반 마커 클러스터링 */
   let points = stores.map(
     ({
       code,
@@ -84,6 +95,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     options: { radius: 200, maxZoom: 16 }
   });
 
+  /* 줌 이벤트 핸들러 (16레벨 이하로 줌 아웃할 경우 상세 마커 지움) */
   const handleZoom = zoomLevel => {
     if (zoom === zoomLevel) {
       return;
@@ -105,6 +117,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     }
   };
 
+  /* 센터포지션 이벤트 핸들러 */
   const handleCenterChange = center => {
     NProgress.start();
     setPosition(center);
@@ -113,6 +126,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     setMarker();
   };
 
+  /* 클러스터마커 클릭 이벤트 핸들러 */
   const handleClick = async (e, cluster) => {
     const expansionZoom = Math.min(
       supercluster.getClusterExpansionZoom(cluster.id),
@@ -122,6 +136,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     await handleZoom(expansionZoom);
   };
 
+  /* 클러스터마커 클릭 이벤트 핸들러 */
   const setMarker = () => {
     const newMarkerList = [];
 
@@ -167,10 +182,12 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     markerList.push(...newMarkerList);
   };
 
+  /* 현재 지도 좌표의 경계 영역 구하는 메서드 */
   const getBounds = React.useCallback(() => {
     return mapRef.current.getBounds();
   }, [mapRef]);
 
+  /* DOM 로드 시점에 지도 경계 확인 및 마커 등록 */
   React.useEffect(() => {
     setBounds(getBounds());
     setMarker();
