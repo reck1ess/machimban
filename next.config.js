@@ -5,7 +5,9 @@ const withOffline = require("next-offline");
 const nextConfig = {
   target: "serverless",
   env: {
-    NAVER_MAP_API_KEY: process.env.NAVER_MAP_API_KEY
+    NAVER_MAP_API_KEY: process.env.NAVER_MAP_API_KEY,
+    NAVER_MAP_API_SECRET: process.env.NAVER_MAP_API_SECRET,
+    KAKAO_MAP_API_KEY: process.env.KAKAO_MAP_API_KEY
   },
   dontAutoRegisterSw: true,
   transformManifest: manifest => ["/"].concat(manifest), // add the homepage to the cache
