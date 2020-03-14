@@ -123,7 +123,10 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     setPosition(center);
     trigger(url);
     NProgress.done();
-    setMarker();
+
+    if (debouncedLat === _lat && debouncedLng === _lng) {
+      setMarker();
+    }
   };
 
   /* 클러스터마커 클릭 이벤트 핸들러 */
@@ -132,8 +135,8 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
       supercluster.getClusterExpansionZoom(cluster.id),
       16
     );
-    mapRef.current.panTo(e.coord);
-    await handleZoom(expansionZoom);
+    await mapRef.current.panTo(e.coord);
+    handleZoom(expansionZoom);
   };
 
   /* 클러스터마커 클릭 이벤트 핸들러 */
