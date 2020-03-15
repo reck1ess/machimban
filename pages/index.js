@@ -30,7 +30,9 @@ const Home = ({ stores }) => {
         value={{
           onLoadingSlow: () => {
             setLoading(true);
-            delay(3000).then(() => setLoading(false));
+            delay(3000).then(() => {
+              setLoading(false);
+            });
           },
           onSuccess: () => {
             setLoading(false);
