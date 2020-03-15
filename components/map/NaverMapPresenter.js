@@ -10,6 +10,7 @@ import MarkerIcon from "./MarkerIcon";
 import RefreshIcon from "./RefreshIcon";
 import Maybe from "../common/Maybe";
 
+import ClickContext from "../../lib/context/ClickContext";
 import PositionContext from "../../lib/context/PositionContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
@@ -32,6 +33,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
 
   /* 네이버 지도 관련 상태 */
   const [bounds, setBounds] = React.useState(null);
+  const { click: isClick } = React.useContext(ClickContext);
   const { position, setPosition } = React.useContext(PositionContext);
   const { zoom, setZoom } = React.useContext(ZoomContext);
   const { _lat, _lng } = position;
@@ -182,6 +184,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
         markerList.splice(j, 1);
       }
     }
+
     markerList.push(...newMarkerList);
   };
 
@@ -195,6 +198,12 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     setBounds(getBounds());
     setMarker();
   }, []);
+
+  React.useEffect(() => {
+    if (isClick) {
+      setMarker();
+    }
+  }, [stores]);
 
   return (
     <NaverMap

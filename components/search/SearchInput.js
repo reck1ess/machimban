@@ -2,15 +2,20 @@ import NProgress from "nprogress";
 import useSWR from "swr";
 
 import Maybe from "../common/Maybe";
+import ClickContext from "../../lib/context/ClickContext";
 import FocusContext from "../../lib/context/FocusContext";
 import PositionContext from "../../lib/context/PositionContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
-import { NETWORK_ERROR_MESSAGE } from "../../lib/utils/constant";
+import { NETWORK_ERROR_MESSAGE, NETWORK_DELAY } from "../../lib/utils/constant";
+import delay from "../../lib/utils/delay";
 import fetcher from "../../lib/utils/fetcher";
 import notifyError from "../../lib/utils/notifyError";
+import convertNaverLat from "../../lib/utils/converNaverLat";
+import convertNaverLng from "../../lib/utils/convertNaverLng";
 
 const SearchInput = () => {
+  const { setClick } = React.useContext(ClickContext);
   const { focus: isFocus, setFocus } = React.useContext(FocusContext);
   const { setPosition } = React.useContext(PositionContext);
   const { setZoom } = React.useContext(ZoomContext);
@@ -45,16 +50,19 @@ const SearchInput = () => {
   const handleClick = async (x, y) => {
     const navermaps = window.naver.maps;
     addresses = [];
+    setClick(true);
 
     try {
       NProgress.start();
-      setPosition(new navermaps.LatLng(y, x));
+      setPosition(new navermaps.LatLng(convertNaverLat(y), convertNaverLng(x)));
       setZoom(16);
     } catch (error) {
       notifyError(NETWORK_ERROR_MESSAGE);
     } finally {
       setSearchTerm("");
       setFocus(false);
+      await delay(NETWORK_DELAY * 8);
+      setClick(false);
       NProgress.done();
     }
   };
