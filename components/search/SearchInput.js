@@ -7,7 +7,11 @@ import FocusContext from "../../lib/context/FocusContext";
 import PositionContext from "../../lib/context/PositionContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
-import { NETWORK_ERROR_MESSAGE, NETWORK_DELAY } from "../../lib/utils/constant";
+import {
+  NETWORK_ERROR_MESSAGE,
+  NETWORK_DELAY,
+  SEARCH_INPUT_PLACEHOLDER
+} from "../../lib/utils/constant";
 import delay from "../../lib/utils/delay";
 import fetcher from "../../lib/utils/fetcher";
 import notifyError from "../../lib/utils/notifyError";
@@ -70,9 +74,14 @@ const SearchInput = () => {
   return (
     <form onSubmit={handleSubmit}>
       <input
-        type="text"
+        type="search"
         name="input"
         value={searchTerm}
+        disabled={!isFocus}
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
+        placeholder={SEARCH_INPUT_PLACEHOLDER}
         onChange={handleSearchTermChange}
       />
       <button
@@ -112,6 +121,9 @@ const SearchInput = () => {
           }
           input {
             position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
             box-sizing: border-box;
             top: 25px;
             right: 35px;
@@ -120,20 +132,34 @@ const SearchInput = () => {
             height: ${isFocus ? "40px" : "25px"};
             padding-left: 10px;
             border: 3px solid #ffffff;
-            border-radius: ${isFocus ? 0 : "50%"};
+            border-radius: ${isFocus ? "4px" : "50%"};
             background: none;
-            color: #fff;
+            color: ${isFocus ? "#fff" : "transparent"};
             font-size: 16px;
             font-weight: 400;
-            font-family: Roboto;
-            outline: 0;
+            letter-spacing: -0.87px;
+            cursor: pointer;
             transition: ${isFocus
-              ? "width 0.4s ease-in-out, height 0.6s ease-in-out, border-radius 0.2s ease-in-out, padding 0.2s, transform 0.2s"
-              : "width 0.4s ease-in-out, height 0.6s ease-in-out, border-radius 0.8s ease-in-out, padding 0.2s, transform 0.8s"};
+              ? "width 0.4s ease-in-out, height 0.6s ease-in-out, border-radius 0.2s ease-in-out, padding 0.2s, transform 0.2s, color 0.2s"
+              : "width 0.4s ease-in-out, height 0.6s ease-in-out, border-radius 0.8s ease-in-out, padding 0.2s, transform 0.8s, color 0.8s"};
             transition-delay: ${isFocus ? "0.4s, 0s, 0.4s" : "0.4s"};
             transform: ${isFocus
               ? "translate(15px, -45%)"
               : "translate(15px, -50%)"};
+            &[type="search"] {
+              -webkit-appearance: none;
+              outline-offset: 0;
+            }
+            &:focus {
+              outline: none;
+            }
+            &::placeholder {
+              font-size: 16px;
+              letter-spacing: -0.87px;
+              color: #fff;
+              opacity: ${isFocus ? 0.8 : 0};
+              transition: opacity 0.4s;
+            }
           }
           .search {
             position: absolute;
