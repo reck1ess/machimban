@@ -7,6 +7,7 @@ import SearchContext from "../../lib/context/SearchContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
 import {
+  INITIAL_STORE_STATE,
   NETWORK_ERROR_MESSAGE,
   NETWORK_DELAY,
   SEARCH_INPUT_PLACEHOLDER,
@@ -19,6 +20,7 @@ import fetcher from "../../lib/utils/fetcher";
 import notifyError from "../../lib/utils/notifyError";
 import convertNaverLat from "../../lib/utils/convertNaverLat";
 import convertNaverLng from "../../lib/utils/convertNaverLng";
+import StoreContext from "../../lib/context/StoreContext";
 
 const SearchInput = () => {
   const { setPosition } = React.useContext(PositionContext);
@@ -26,6 +28,7 @@ const SearchInput = () => {
     searchInfo: { isFocus },
     dispatch
   } = React.useContext(SearchContext);
+  const { setStoreInfo } = React.useContext(StoreContext);
   const { setZoom } = React.useContext(ZoomContext);
   const [searchTerm, setSearchTerm] = React.useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -56,6 +59,7 @@ const SearchInput = () => {
     const navermaps = window.naver.maps;
     addresses = [];
     dispatch({ type: SET_CLICK, isClick: true });
+    setStoreInfo(INITIAL_STORE_STATE);
 
     try {
       NProgress.start();
