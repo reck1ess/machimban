@@ -2,36 +2,37 @@ import NProgress from "nprogress";
 import useSWR from "swr";
 
 import Maybe from "../common/Maybe";
-import ClickContext from "../../lib/context/ClickContext";
-import FocusContext from "../../lib/context/FocusContext";
 import PositionContext from "../../lib/context/PositionContext";
+import SearchContext from "../../lib/context/SearchContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
 import {
   NETWORK_ERROR_MESSAGE,
   NETWORK_DELAY,
-  SEARCH_INPUT_PLACEHOLDER
+  SEARCH_INPUT_PLACEHOLDER,
+  SET_KEYWORD,
+  SET_CLICK,
+  TOGGLE_FOCUS
 } from "../../lib/utils/constant";
 import delay from "../../lib/utils/delay";
 import fetcher from "../../lib/utils/fetcher";
 import notifyError from "../../lib/utils/notifyError";
-import convertNaverLat from "../../lib/utils/converNaverLat";
+import convertNaverLat from "../../lib/utils/convertNaverLat";
 import convertNaverLng from "../../lib/utils/convertNaverLng";
 
 const SearchInput = () => {
-  const { setClick } = React.useContext(ClickContext);
-  const { focus: isFocus, setFocus } = React.useContext(FocusContext);
   const { setPosition } = React.useContext(PositionContext);
+  const {
+    searchInfo: { isFocus },
+    dispatch
+  } = React.useContext(SearchContext);
   const { setZoom } = React.useContext(ZoomContext);
   const [searchTerm, setSearchTerm] = React.useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   let addresses = [];
 
-  const {
-    data: { documents: searchedAddresses = [] } = {},
-    isValidating
-  } = useSWR(
+  const { data: { documents: searchedAddresses = [] } = {} } = useSWR(
     () =>
       debouncedSearchTerm && debouncedSearchTerm.length > 1
         ? `/api/search?term=${debouncedSearchTerm}`
@@ -54,7 +55,7 @@ const SearchInput = () => {
   const handleClick = async (x, y) => {
     const navermaps = window.naver.maps;
     addresses = [];
-    setClick(true);
+    dispatch({ type: SET_CLICK, isClick: true });
 
     try {
       NProgress.start();
@@ -63,10 +64,11 @@ const SearchInput = () => {
     } catch (error) {
       notifyError(NETWORK_ERROR_MESSAGE);
     } finally {
+      dispatch({ type: SET_KEYWORD, keyword: searchTerm });
       setSearchTerm("");
-      setFocus(false);
+      dispatch({ type: TOGGLE_FOCUS });
       await delay(NETWORK_DELAY * 8);
-      setClick(false);
+      dispatch({ type: SET_CLICK, isClick: false });
       NProgress.done();
     }
   };
@@ -87,7 +89,7 @@ const SearchInput = () => {
       <button
         type="reset"
         className="search"
-        onClick={() => setFocus(!isFocus)}
+        onClick={() => dispatch({ type: TOGGLE_FOCUS })}
       />
       <Maybe test={isFocus}>
         <div className="auto-suggestion-container">

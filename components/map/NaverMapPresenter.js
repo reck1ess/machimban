@@ -10,17 +10,23 @@ import MarkerIcon from "./MarkerIcon";
 import RefreshIcon from "./RefreshIcon";
 import Maybe from "../common/Maybe";
 
-import ClickContext from "../../lib/context/ClickContext";
 import PositionContext from "../../lib/context/PositionContext";
+import SearchContext from "../../lib/context/SearchContext";
+import StoreContext from "../../lib/context/StoreContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
 import {
   SERVER_BASE_URL,
   STORES_BY_GEO_CODE,
-  NETWORK_ERROR_MESSAGE
+  NETWORK_DELAY,
+  NETWORK_ERROR_MESSAGE,
+  INITIAL_STORE_STATE
 } from "../../lib/utils/constant";
+import convertNaverLat from "../../lib/utils/convertNaverLat";
+import convertNaverLng from "../../lib/utils/convertNaverLng";
 import convertDecimalPoint from "../../lib/utils/convertDecimalPoint";
 import convertZoomToMeter from "../../lib/utils/convertZoomToMeter";
+import delay from "../../lib/utils/delay";
 import fetcher from "../../lib/utils/fetcher";
 import notifyError from "../../lib/utils/notifyError";
 
@@ -31,9 +37,17 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
   const mapRef = React.useRef();
   const navermaps = window.naver.maps;
 
+  /* 검색어 관련 상태 */
+  const {
+    searchInfo: { isClick }
+  } = React.useContext(SearchContext);
+
+  /* 판매점 관련 상태 */
+  const { setStoreInfo } = React.useContext(StoreContext);
+
   /* 네이버 지도 관련 상태 */
+  const [isMount, setMount] = React.useState(false);
   const [bounds, setBounds] = React.useState(null);
-  const { click: isClick } = React.useContext(ClickContext);
   const { position, setPosition } = React.useContext(PositionContext);
   const { zoom, setZoom } = React.useContext(ZoomContext);
   const { _lat, _lng } = position;
@@ -152,20 +166,24 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
           flag = true;
         }
       });
+
+      const handleClick = () => {
+        const { lat, lng } = store;
+        setPosition(
+          new navermaps.LatLng(convertNaverLat(lat), convertNaverLng(lng))
+        );
+        setStoreInfo({ ...store });
+      };
+
       if (!flag) {
-        const { lat, lng, remain_stat, stock_at, created_at, code } = store;
+        const { lat, lng, code } = store;
         newMarkerList.push(
           <Marker
             key={code * Math.random()}
+            onClick={handleClick}
             position={new navermaps.LatLng(lat, lng)}
             icon={{
-              content: renderToStaticMarkup(
-                <MarkerIcon
-                  remain_stat={remain_stat}
-                  stock_at={stock_at}
-                  created_at={created_at}
-                />
-              ),
+              content: renderToStaticMarkup(<MarkerIcon {...store} />),
               anchor: new navermaps.Point(8, 46)
             }}
           />
@@ -193,14 +211,15 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     return mapRef.current.getBounds();
   }, [mapRef]);
 
-  /* DOM 로드 시점에 지도 경계 확인 및 마커 등록 */
+  /* DOM 로드 시점에 지도 경계 확인 */
   React.useEffect(() => {
     setBounds(getBounds());
-    setMarker();
+    delay(NETWORK_DELAY * 8).then(() => setMount(true));
   }, []);
 
+  /* DOM 로드 직후 혹은 검색한 장소 클릭하여 이동 시 마커 새로고침 */
   React.useEffect(() => {
-    if (isClick) {
+    if (!isMount || isClick) {
       setMarker();
     }
   }, [stores]);
@@ -219,6 +238,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
       onZoomChanged={handleZoom}
       bounds={bounds}
       onBoundsChanged={() => setBounds(getBounds())}
+      onClick={() => setStoreInfo(INITIAL_STORE_STATE)}
       {...props}
     >
       <Maybe test={zoom < 16}>

@@ -2,10 +2,12 @@ import React from "react";
 
 import CustomLink from "./CustomLink";
 import SearchInput from "../search/SearchInput";
-import FocusContext from "../../lib/context/FocusContext";
+import SearchContext from "../../lib/context/SearchContext";
 
 const Header = () => {
-  const { focus: isFocus } = React.useContext(FocusContext);
+  const {
+    searchInfo: { isFocus }
+  } = React.useContext(SearchContext);
 
   return (
     <header>
