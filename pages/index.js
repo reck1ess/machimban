@@ -13,6 +13,7 @@ import {
 } from "../lib/utils/constant";
 import delay from "../lib/utils/delay";
 import fetcher from "../lib/utils/fetcher";
+import StorePreview from "../components/store/StorePreview";
 
 const Home = ({ stores }) => {
   const [isLoading, setLoading] = React.useState(false);
@@ -51,6 +52,7 @@ const Home = ({ stores }) => {
       >
         <main>
           <NaverMapContainer stores={stores} />
+          <StorePreview />
           <Maybe test={isLoading}>
             <LoadingSpinner />
           </Maybe>
