@@ -20,7 +20,8 @@ import {
   STORES_BY_GEO_CODE,
   NETWORK_DELAY,
   NETWORK_ERROR_MESSAGE,
-  INITIAL_STORE_STATE
+  INITIAL_STORE_STATE,
+  DEFAULT_POSITION
 } from "../../lib/utils/constant";
 import convertNaverLat from "../../lib/utils/convertNaverLat";
 import convertNaverLng from "../../lib/utils/convertNaverLng";
@@ -32,7 +33,7 @@ import notifyError from "../../lib/utils/notifyError";
 
 let markerList = [];
 
-const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
+const NaverMapPresenter = (...props) => {
   /* 네이버 지도 ref */
   const mapRef = React.useRef();
   const navermaps = window.naver.maps;
@@ -50,7 +51,8 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
   const [bounds, setBounds] = React.useState(null);
   const { position, setPosition } = React.useContext(PositionContext);
   const { zoom, setZoom } = React.useContext(ZoomContext);
-  const { _lat, _lng } = position;
+  const _lat = position ? position._lat : DEFAULT_POSITION._lat;
+  const _lng = position ? position._lng : DEFAULT_POSITION._lng;
 
   /* UI 이벤트 디바운스 */
   const debouncedLat = useDebounce(_lat, 500);
@@ -69,7 +71,7 @@ const NaverMapPresenter = ({ stores: initialStores }, ...props) => {
     notifyError(NETWORK_ERROR_MESSAGE);
   }
 
-  const { stores = [] } = fetchedStores || initialStores;
+  const stores = fetchedStores ? fetchedStores.stores : [];
 
   /* supercluster 기반 마커 클러스터링 */
   let points = stores.map(

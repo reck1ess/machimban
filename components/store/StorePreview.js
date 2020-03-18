@@ -155,15 +155,17 @@ const StorePreview = () => {
           margin-top: 10px;
         }
         .store-address {
+          display: block;
+          display: -webkit-box;
           font-size: 16px;
           line-height: 1.4;
           letter-spacing: -0.4px;
           color: #242424;
-          text-overflow: ellipsis;
-          -webkit-box-orient: vertical;
+          height: 44.8px;
           -webkit-line-clamp: 2;
-          word-break: break-all;
-          overflow-wrap: break-word;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .mask-info {
           position: absolute;

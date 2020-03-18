@@ -4,7 +4,7 @@ import NaverMapPresenter from "./NaverMapPresenter";
 import BlankContainer from "../common/BlankContainer";
 import useIsMounted from "../../lib/hooks/useIsMounted";
 
-const NaverMapContainer = ({ stores }) => {
+const NaverMapContainer = () => {
   const isMounted = useIsMounted();
 
   if (!isMounted) {
@@ -17,7 +17,7 @@ const NaverMapContainer = ({ stores }) => {
       error={<p>Maps Load Error</p>}
       loading={<BlankContainer />}
     >
-      <NaverMapPresenter stores={stores} />
+      <NaverMapPresenter />
     </RenderAfterNavermapsLoaded>
   );
 };

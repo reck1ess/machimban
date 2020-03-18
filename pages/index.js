@@ -5,17 +5,11 @@ import { SWRConfig } from "swr";
 
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import Maybe from "../components/common/Maybe";
-import {
-  SERVER_BASE_URL,
-  STORES_BY_GEO_CODE,
-  APP_NAME,
-  HOME_TITLE
-} from "../lib/utils/constant";
+import { APP_NAME, HOME_TITLE } from "../lib/utils/constant";
 import delay from "../lib/utils/delay";
-import fetcher from "../lib/utils/fetcher";
 import StorePreview from "../components/store/StorePreview";
 
-const Home = ({ stores }) => {
+const Home = () => {
   const [isLoading, setLoading] = React.useState(false);
   const NaverMapContainer = dynamic(
     () => import("../components/map/NaverMapContainer"),
@@ -51,7 +45,7 @@ const Home = ({ stores }) => {
         }}
       >
         <main>
-          <NaverMapContainer stores={stores} />
+          <NaverMapContainer />
           <StorePreview />
           <Maybe test={isLoading}>
             <LoadingSpinner />
@@ -77,13 +71,6 @@ const Home = ({ stores }) => {
       `}</style>
     </React.Fragment>
   );
-};
-
-Home.getInitialProps = async () => {
-  const stores = await fetcher(
-    `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=37.5666103&lng=126.9783882&m=1500`
-  );
-  return { stores };
 };
 
 export default Home;
