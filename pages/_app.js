@@ -1,7 +1,6 @@
 import React from "react";
 import { toast } from "react-toastify";
 
-import Layout from "../components/common/Layout";
 import ContextProvider from "../lib/context";
 import "react-toastify/dist/ReactToastify.min.css";
 
@@ -19,9 +18,7 @@ toast.configure({
 export default ({ Component, pageProps }) => {
   return (
     <ContextProvider>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <Component {...pageProps} />
     </ContextProvider>
   );
 };

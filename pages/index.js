@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import Head from "next/head";
 import React from "react";
+import Div100vh from "react-div-100vh";
 import { SWRConfig } from "swr";
 
 import LoadingSpinner from "../components/common/LoadingSpinner";
@@ -8,6 +9,7 @@ import Maybe from "../components/common/Maybe";
 import { APP_NAME, HOME_TITLE } from "../lib/utils/constant";
 import delay from "../lib/utils/delay";
 import StorePreview from "../components/store/StorePreview";
+import Header from "../components/common/Header";
 
 const Home = () => {
   const [isLoading, setLoading] = React.useState(false);
@@ -44,19 +46,19 @@ const Home = () => {
           }
         }}
       >
-        <main>
+        <Div100vh as="main" className="main-container">
+          <Header />
           <NaverMapContainer />
           <StorePreview />
           <Maybe test={isLoading}>
             <LoadingSpinner />
           </Maybe>
-        </main>
+        </Div100vh>
       </SWRConfig>
       <style jsx>{`
-        main {
+        .main-container {
           position: absolute;
           width: 100vw;
-          height: 100vh;
           margin: 0;
           padding: 0;
           flex: 1;

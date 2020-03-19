@@ -19,7 +19,7 @@ const Header = () => {
         {`
           header {
             position: absolute;
-            width: 100%;
+            width: 100vw;
             height: 58px;
             background: #8c7ae6;
             display: flex;
