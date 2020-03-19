@@ -54,7 +54,7 @@ const Home = () => {
       </SWRConfig>
       <style jsx>{`
         main {
-          position: relative;
+          position: absolute;
           width: 100vw;
           height: 100vh;
           margin: 0;

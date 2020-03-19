@@ -98,7 +98,12 @@ const StorePreview = () => {
           position: absolute;
           bottom: 0;
           left: 50%;
-          transform: translateX(-50%);
+          transition: transform 0.2s, opacity 0.8s;
+          transform: ${
+            storeInfo.addr.length === 0
+              ? "translate(-50%, 150px)"
+              : "translate(-50%, 0px)"
+          };
           z-index: 998;
         }
         .store-preview-presenter {
@@ -112,12 +117,6 @@ const StorePreview = () => {
           padding: 20px 18px;
           background: #fff;
           color: #000;
-          transition: transform 0.2s, opacity 0.8s;
-          transform: ${
-            storeInfo.addr.length === 0
-              ? "translateY(150px)"
-              : "translateY(0px)"
-          };
         }
         .stock-circle {
           position: absolute;
