@@ -74,35 +74,37 @@ const NaverMapPresenter = (...props) => {
   const stores = fetchedStores ? fetchedStores.stores : [];
 
   /* supercluster 기반 마커 클러스터링 */
-  let points = stores.map(
-    ({
-      code,
-      type,
-      name,
-      addr,
-      remain_stat,
-      stock_at,
-      created_at,
-      lat,
-      lng
-    }) => ({
-      type: "Feature",
-      properties: {
-        cluster: false,
+  let points =
+    stores &&
+    stores.map(
+      ({
         code,
         type,
         name,
         addr,
         remain_stat,
         stock_at,
-        created_at
-      },
-      geometry: {
-        type: "Point",
-        coordinates: [parseFloat(lng), parseFloat(lat)]
-      }
-    })
-  );
+        created_at,
+        lat,
+        lng
+      }) => ({
+        type: "Feature",
+        properties: {
+          cluster: false,
+          code,
+          type,
+          name,
+          addr,
+          remain_stat,
+          stock_at,
+          created_at
+        },
+        geometry: {
+          type: "Point",
+          coordinates: [parseFloat(lng), parseFloat(lat)]
+        }
+      })
+    );
 
   let { clusters, supercluster } = useSupercluster({
     points,
@@ -244,32 +246,33 @@ const NaverMapPresenter = (...props) => {
       {...props}
     >
       <Maybe test={zoom < 16}>
-        {clusters.map((cluster, index) => {
-          const [longitude, latitude] = cluster.geometry.coordinates;
-          const {
-            cluster: isCluster,
-            point_count: pointCount
-          } = cluster.properties;
+        {clusters &&
+          clusters.map((cluster, index) => {
+            const [longitude, latitude] = cluster.geometry.coordinates;
+            const {
+              cluster: isCluster,
+              point_count: pointCount
+            } = cluster.properties;
 
-          if (isCluster) {
-            return (
-              <Marker
-                key={index}
-                clickable={true}
-                onClick={e => handleClick(e, cluster)}
-                position={new navermaps.LatLng(latitude, longitude)}
-                icon={{
-                  content: renderToStaticMarkup(
-                    <ClusterIcon
-                      pointCount={pointCount}
-                      total={points.length}
-                    />
-                  )
-                }}
-              />
-            );
-          }
-        })}
+            if (isCluster) {
+              return (
+                <Marker
+                  key={index}
+                  clickable={true}
+                  onClick={e => handleClick(e, cluster)}
+                  position={new navermaps.LatLng(latitude, longitude)}
+                  icon={{
+                    content: renderToStaticMarkup(
+                      <ClusterIcon
+                        pointCount={pointCount}
+                        total={points.length}
+                      />
+                    )
+                  }}
+                />
+              );
+            }
+          })}
       </Maybe>
       <Maybe test={zoom >= 16}>{markerList}</Maybe>
       <GPSIcon />

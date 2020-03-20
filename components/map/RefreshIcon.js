@@ -5,6 +5,7 @@ import { mutate } from "swr";
 import PositionContext from "../../lib/context/PositionContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import {
+  DEFAULT_POSITION,
   SERVER_BASE_URL,
   STORES_BY_GEO_CODE,
   NETWORK_ERROR_MESSAGE
@@ -16,7 +17,8 @@ import notifyError from "../../lib/utils/notifyError";
 const RefreshIcon = () => {
   const { zoom } = React.useContext(ZoomContext);
   const { position } = React.useContext(PositionContext);
-  const { _lat, _lng } = position;
+  const _lat = position ? position._lat : DEFAULT_POSITION._lat;
+  const _lng = position ? position._lng : DEFAULT_POSITION._lng;
 
   const url = `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
     _lat
@@ -26,8 +28,8 @@ const RefreshIcon = () => {
     try {
       NProgress.start();
       const response = await fetch(url);
-      const { stores } = await response.json();
-      mutate(url, { ...stores });
+      const data = await response.json();
+      mutate(url, { ...data });
     } catch (error) {
       notifyError(NETWORK_ERROR_MESSAGE);
     } finally {
