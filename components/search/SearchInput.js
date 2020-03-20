@@ -119,7 +119,7 @@ const SearchInput = () => {
           form {
             position: absolute;
             height: 58px;
-            width: calc(100vw - 30px);
+            width: calc(100% - 30px);
             margin: 0 15px;
             top: 50%;
             left: 50%;
@@ -152,9 +152,21 @@ const SearchInput = () => {
             transform: ${isFocus
               ? "translate(15px, -45%)"
               : "translate(15px, -50%)"};
+            -webkit-appearance: none;
             &[type="search"] {
-              -webkit-appearance: none;
               outline-offset: 0;
+              &::-webkit-search-decoration {
+                -webkit-appearance: none;
+              }
+              &::-webkit-search-cancel-button {
+                -webkit-appearance: none;
+              }
+              &::-webkit-search-results-button {
+                -webkit-appearance: none;
+              }
+              &::-webkit-search-results-decoration {
+                -webkit-appearance: none;
+              }
             }
             &:focus {
               outline: none;
