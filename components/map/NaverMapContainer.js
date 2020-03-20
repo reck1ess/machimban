@@ -12,11 +12,7 @@ const NaverMapContainer = () => {
   }
 
   return (
-    <RenderAfterNavermapsLoaded
-      ncpClientId={process.env.NAVER_MAP_API_KEY}
-      error={<p>Maps Load Error</p>}
-      loading={<BlankContainer />}
-    >
+    <RenderAfterNavermapsLoaded ncpClientId={process.env.NAVER_MAP_API_KEY}>
       <NaverMapPresenter />
     </RenderAfterNavermapsLoaded>
   );
