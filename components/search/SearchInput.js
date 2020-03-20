@@ -89,6 +89,9 @@ const SearchInput = () => {
         spellCheck={false}
         placeholder={SEARCH_INPUT_PLACEHOLDER}
         onChange={handleSearchTermChange}
+        onClick={() => {
+          !isFocus && dispatch({ type: TOGGLE_FOCUS });
+        }}
       />
       <button
         type="reset"
@@ -256,6 +259,7 @@ const SearchInput = () => {
             color: #000;
             font-size: 16px;
             font-weight: 500;
+            cursor: pointer;
           }
           .place-category {
             color: #666;
