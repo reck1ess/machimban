@@ -8,6 +8,8 @@ import ClusterIcon from "./ClusterIcon";
 import GPSIcon from "./GPSIcon";
 import MarkerIcon from "./MarkerIcon";
 import RefreshIcon from "./RefreshIcon";
+import ZoomInIcon from "./ZoomInIcon";
+import ZoomOutIcon from "./ZoomOutIcon";
 import Maybe from "../common/Maybe";
 
 import PositionContext from "../../lib/context/PositionContext";
@@ -277,6 +279,8 @@ const NaverMapPresenter = (...props) => {
       <Maybe test={zoom >= 16}>{markerList}</Maybe>
       <GPSIcon />
       <RefreshIcon />
+      <ZoomInIcon />
+      <ZoomOutIcon />
     </NaverMap>
   );
 };
