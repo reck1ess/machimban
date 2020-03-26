@@ -109,7 +109,7 @@ const Header = () => {
             color: #fff;
             font-size: 16px;
             font-weight: 500;
-            z-index: 100;
+            z-index: 10;
             transition: transform 0.4s, opacity 0.4s;
           }
           .main-logo {
@@ -124,7 +124,7 @@ const Header = () => {
           .drawer {
             position: fixed;
             top: 0;
-            z-index: 9999;
+            z-index: 5;
           }
           .drawer > * {
             transition: transform 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86),
@@ -249,13 +249,14 @@ const Header = () => {
             right: 0;
             margin-left: auto;
             margin-right: auto;
-            width: 150px;
-            height: 50px;
-            border: 1px solid #000;
-            background: #fff;
-            color: #000;
+            width: 120px;
+            height: 40px;
+            border-radius: 25px;
+            background: #8c7ae6;
+            color: #fff;
             font-size: 15px;
             font-weight: 600;
+            z-index: 9;
           }
           @keyframes rcDrawerFadeIn {
             0% {
