@@ -64,12 +64,12 @@ const ZoomInIcon = () => {
             -1px 1px 1px rgba(0, 0, 0, 0.03), 1px 1px 1px rgba(0, 0, 0, 0.03);
           padding: 0 5px;
           overflow: hidden;
-          z-index: 100;
+          z-index: 1;
           transition: transform 0.4s, opacity 0.4s;
         }
         .plus-icon-image {
-          width: 24px;
-          height: 24px;
+          width: 20px;
+          height: 20px;
           cursor: pointer;
           z-index: 100;
           transition: opacity 0.5s;

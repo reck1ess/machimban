@@ -52,7 +52,7 @@ const GPSIcon = () => {
             -1px 1px 1px rgba(0, 0, 0, 0.03), 1px 1px 1px rgba(0, 0, 0, 0.03);
           padding: 0 5px;
           overflow: hidden;
-          z-index: 100;
+          z-index: 1;
           transition: transform 0.4s, opacity 0.4s;
         }
         .gps-icon-image {
