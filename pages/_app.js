@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 
 import ContextProvider from "../lib/context";
 import "react-toastify/dist/ReactToastify.min.css";
+import Head from "next/head";
 
 if (typeof window !== "undefined") {
   require("lazysizes/plugins/attrchange/ls.attrchange.js");
@@ -18,6 +19,12 @@ toast.configure({
 export default ({ Component, pageProps }) => {
   return (
     <ContextProvider>
+      <Head>
+        <script
+          type="text/javascript"
+          src={`//openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NAVER_MAP_API_KEY}`}
+        ></script>
+      </Head>
       <Component {...pageProps} />
     </ContextProvider>
   );

@@ -13,9 +13,11 @@ import Header from "../components/common/Header";
 
 const Home = () => {
   const [isLoading, setLoading] = React.useState(false);
-  const NaverMapContainer = dynamic(
-    () => import("../components/map/NaverMapContainer"),
-    { ssr: false }
+  const NaverMapPresenter = dynamic(
+    () => import("../components/map/NaverMapPresenter"),
+    {
+      ssr: false
+    }
   );
 
   return (
@@ -48,7 +50,7 @@ const Home = () => {
       >
         <Div100vh as="main" className="main-container">
           <Header />
-          <NaverMapContainer />
+          <NaverMapPresenter />
           <StorePreview />
           <Maybe test={isLoading}>
             <LoadingSpinner />
