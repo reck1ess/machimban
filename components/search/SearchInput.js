@@ -27,7 +27,6 @@ const SearchInput = () => {
   } = React.useContext(SearchContext);
   const { kakaoMap } = React.useContext(MapContext);
   const { setStoreInfo } = React.useContext(StoreContext);
-  const { setZoom } = React.useContext(ZoomContext);
   const [searchTerm, setSearchTerm] = React.useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
@@ -61,7 +60,7 @@ const SearchInput = () => {
     try {
       NProgress.start();
       kakaoMap.panTo(new kakao.maps.LatLng(lat, lng));
-      setZoom(3);
+      kakaoMap.setLevel(3);
     } catch (error) {
       notifyError(NETWORK_ERROR_MESSAGE);
     } finally {

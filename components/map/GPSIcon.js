@@ -10,7 +10,10 @@ const GPSIcon = () => {
     try {
       NProgress.start();
       await navigator.geolocation.getCurrentPosition(
-        position => kakaoMap.panTo(new kakao.maps.LatLng(lat, lng)),
+        ({ coords: { latitude, longitude } }) => {
+          kakaoMap.panTo(new kakao.maps.LatLng(latitude, longitude));
+          kakaoMap.setLevel(3);
+        },
         err => console.log(err)
       );
     } catch (error) {

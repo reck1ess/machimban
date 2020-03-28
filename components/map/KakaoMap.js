@@ -204,7 +204,15 @@ const KakaoMap = () => {
     updateMarker();
   }, [stores]);
 
-  return <div id="map" style={{ width: "100%", height: "100%" }} />;
+  return (
+    <React.Fragment>
+      <div id="map" style={{ width: "100%", height: "100%" }} />
+      <GPSIcon />
+      <RefreshIcon />
+      <ZoomInIcon />
+      <ZoomOutIcon />
+    </React.Fragment>
+  );
 };
 
 export default KakaoMap;

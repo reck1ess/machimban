@@ -36,7 +36,7 @@ const Header = () => {
   const [open, setOpen] = React.useState(false);
   const { kakaoMap } = React.useContext(MapContext);
   const { position } = React.useContext(PositionContext);
-  const { zoom, setZoom } = React.useContext(ZoomContext);
+  const { zoom } = React.useContext(ZoomContext);
   const lat = position ? position.lat : DEFAULT_POSITION.lat;
   const lng = position ? position.lng : DEFAULT_POSITION.lng;
 
@@ -59,7 +59,7 @@ const Header = () => {
     try {
       NProgress.start();
       kakaoMap.panTo(new kakao.maps.LatLng(lat, lng));
-      setZoom(3);
+      kakaoMap.setLevel(3);
       setStoreInfo({ ...store });
     } catch (error) {
       notifyError(NETWORK_ERROR_MESSAGE);
@@ -255,6 +255,7 @@ const Header = () => {
             font-weight: 600;
             z-index: 9;
           }
+
           @keyframes rcDrawerFadeIn {
             0% {
               opacity: 0;

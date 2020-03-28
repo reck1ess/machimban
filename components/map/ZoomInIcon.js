@@ -13,21 +13,23 @@ import {
 import convertDecimalPoint from "../../lib/utils/convertDecimalPoint";
 import convertZoomToMeter from "../../lib/utils/convertZoomToMeter";
 import notifyError from "../../lib/utils/notifyError";
+import MapContext from "../../lib/context/MapContext";
 
 const ZoomInIcon = () => {
-  const { zoom, setZoom } = React.useContext(ZoomContext);
+  const { kakaoMap } = React.useContext(MapContext);
+  const { zoom } = React.useContext(ZoomContext);
   const { position } = React.useContext(PositionContext);
-  const _lat = position ? position._lat : DEFAULT_POSITION._lat;
-  const _lng = position ? position._lng : DEFAULT_POSITION._lng;
+  const lat = position ? position.lat : DEFAULT_POSITION.lat;
+  const lng = position ? position.lng : DEFAULT_POSITION.lng;
 
   const url = `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
-    _lat
-  )}&lng=${convertDecimalPoint(_lng)}&m=${convertZoomToMeter(zoom)}`;
+    lat
+  )}&lng=${convertDecimalPoint(lng)}&m=${convertZoomToMeter(zoom)}`;
 
   const handleClick = async () => {
     try {
       NProgress.start();
-      setZoom(Math.min(18, zoom + 1));
+      kakaoMap.setLevel(Math.max(1, kakaoMap.getLevel() - 1));
       const response = await fetch(url);
       const data = await response.json();
       mutate(url, { ...data });
