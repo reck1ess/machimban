@@ -24,15 +24,16 @@ import {
   INITIAL_STORE_STATE,
   DEFAULT_POSITION
 } from "../../lib/utils/constant";
-import convertNaverLat from "../../lib/utils/convertNaverLat";
-import convertNaverLng from "../../lib/utils/convertNaverLng";
 import convertDecimalPoint from "../../lib/utils/convertDecimalPoint";
 import convertZoomToMeter from "../../lib/utils/convertZoomToMeter";
 import convertRemainToString from "../../lib/utils/convertRemainToString";
+import convertRemainToZindex from "../../lib/utils/convertRemainToZindex";
 import delay from "../../lib/utils/delay";
 import fetcher from "../../lib/utils/fetcher";
 import notifyError from "../../lib/utils/notifyError";
 import CenterIcon from "./CenterIcon";
+
+let selectedMarker = null;
 
 const KakaoMap = () => {
   /* 검색어 관련 상태 */
@@ -76,21 +77,50 @@ const KakaoMap = () => {
     const currentBounds = kakaoMap.getBounds();
 
     stores.forEach(({ lat, lng, remain_stat }) => {
-      const imageSrc = `/${convertRemainToString(remain_stat)}-mask.svg`;
-      const imageSize = new kakao.maps.Size(30, 30);
-      const imageOption = { offset: new kakao.maps.Point(15, 5) };
-
-      const markerImage = new kakao.maps.MarkerImage(
-        imageSrc,
-        imageSize,
-        imageOption
+      const normalImage = new kakao.maps.MarkerImage(
+        `/${convertRemainToString(remain_stat)}-mask.svg`,
+        new kakao.maps.Size(30, 30),
+        { offset: new kakao.maps.Point(15, 5) }
       );
+
+      const activeImage = new kakao.maps.MarkerImage(
+        `/${convertRemainToString(remain_stat)}-mask.svg`,
+        new kakao.maps.Size(32, 32),
+        { offset: new kakao.maps.Point(15, 10) }
+      );
+
       const markerPosition = new kakao.maps.LatLng(lat, lng);
 
       const marker = new kakao.maps.Marker({
         position: markerPosition,
-        image: markerImage,
-        zIndex: 2
+        image: normalImage,
+        zIndex: convertRemainToZindex(remain_stat)
+      });
+
+      marker.normalImage = normalImage;
+
+      kakao.maps.event.addListener(marker, "mouseover", function() {
+        if (!selectedMarker || selectedMarker !== marker) {
+          marker.setImage(activeImage);
+          marker.setZIndex(10);
+        }
+      });
+
+      kakao.maps.event.addListener(marker, "mouseout", function() {
+        if (!selectedMarker || selectedMarker !== marker) {
+          marker.setImage(normalImage);
+          marker.setZIndex(convertRemainToZindex(remain_stat));
+        }
+      });
+
+      kakao.maps.event.addListener(marker, "click", function() {
+        if (!selectedMarker || selectedMarker !== marker) {
+          !!selectedMarker &&
+            selectedMarker.setImage(selectedMarker.normalImage);
+          marker.setImage(activeImage);
+          marker.setZIndex(10);
+        }
+        selectedMarker = marker;
       });
 
       const storePosition = new kakao.maps.LatLng(lat, lng);
