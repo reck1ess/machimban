@@ -14,9 +14,9 @@ const CenterIcon = () => (
           justify-content: center;
           width: 500px;
           height: 500px;
-          border: 1px solid rgba(117, 184, 250, 0.5);
+          border: 1px solid rgba(117, 184, 250, 0.7);
           border-radius: 50%;
-          background: rgba(207, 231, 255, 0.2);
+          background: rgba(207, 231, 255, 0.25);
           transform: translate(-50%, -50%);
         }
         .center-icon {

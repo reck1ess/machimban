@@ -22,11 +22,7 @@ export default ({ Component, pageProps }) => {
       <Head>
         <script
           type="text/javascript"
-          src={`//openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NAVER_MAP_API_KEY}`}
-        ></script>
-        <script
-          type="text/javascript"
-          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.KAKAO_MAP_API_KEY}`}
+          src={`//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.KAKAO_MAP_API_KEY}&libraries=clusterer`}
         ></script>
       </Head>
       <Component {...pageProps} />

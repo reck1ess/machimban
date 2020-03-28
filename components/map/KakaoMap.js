@@ -45,6 +45,7 @@ const KakaoMap = () => {
 
   /* 지도 관련 상태 */
   const [kakaoMap, setKakaoMap] = React.useState(null);
+  const [clusterer, setClusterer] = React.useState(null);
   const { position, setPosition } = React.useContext(PositionContext);
   const { zoom, setZoom } = React.useContext(ZoomContext);
   const lat = position ? position.lat : DEFAULT_POSITION.lat;
@@ -96,11 +97,14 @@ const KakaoMap = () => {
 
       if (currentBounds.contain(storePosition)) {
         showMarker(kakaoMap, marker);
+        clusterer.addMarker(marker);
       } else {
         hideMarker(marker);
+        clusterer.removeMarker(marker);
       }
     });
   };
+
   const showMarker = (map, marker) => {
     if (marker.getMap()) return;
     marker.setMap(map);
@@ -122,18 +126,26 @@ const KakaoMap = () => {
     const map = new kakao.maps.Map(container, options);
 
     setKakaoMap(map);
-    delay(NETWORK_DELAY * 8).then(() => setMount(true));
 
     const centerPin = new kakao.maps.CustomOverlay({
-      content: renderToStaticMarkup(<CenterIcon />),
-      zIndex: 1
+      content: renderToStaticMarkup(<CenterIcon />)
+    });
+
+    const clusterer = new kakao.maps.MarkerClusterer({
+      map,
+      averageCenter: true,
+      minLevel: 6,
+      zIndex: 2,
+      disableClickZoom: true
     });
 
     handleBounds();
     handleChange();
+    setClusterer(clusterer);
 
     kakao.maps.event.addListener(map, "center_changed", handleBounds);
     kakao.maps.event.addListener(map, "idle", handleChange);
+    kakao.maps.event.addListener(clusterer, "clusterclick", handleClusterClick);
 
     function handleBounds() {
       centerPin.setPosition(map.getCenter());
@@ -146,6 +158,11 @@ const KakaoMap = () => {
       const zoom = map.getLevel();
       setPosition({ lat, lng });
       setZoom(zoom);
+    }
+
+    function handleClusterClick(cluster) {
+      var level = map.getLevel() - 1;
+      map.setLevel(level, { anchor: cluster.getCenter() });
     }
   }, []);
 
