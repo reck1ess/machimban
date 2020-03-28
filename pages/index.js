@@ -13,12 +13,9 @@ import Header from "../components/common/Header";
 
 const Home = () => {
   const [isLoading, setLoading] = React.useState(false);
-  const NaverMapPresenter = dynamic(
-    () => import("../components/map/NaverMapPresenter"),
-    {
-      ssr: false
-    }
-  );
+  const KakaoMap = dynamic(() => import("../components/map/KakaoMap"), {
+    ssr: false
+  });
 
   return (
     <React.Fragment>
@@ -50,7 +47,7 @@ const Home = () => {
       >
         <Div100vh as="main" className="main-container">
           <Header />
-          <NaverMapPresenter />
+          <KakaoMap />
           <StorePreview />
           <Maybe test={isLoading}>
             <LoadingSpinner />
