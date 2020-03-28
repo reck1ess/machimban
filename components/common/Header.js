@@ -7,6 +7,7 @@ import CustomLink from "./CustomLink";
 import SearchInput from "../search/SearchInput";
 import SearchContext from "../../lib/context/SearchContext";
 import StoreContext from "../../lib/context/StoreContext";
+import MapContext from "../../lib/context/MapContext";
 import PositionContext from "../../lib/context/PositionContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
@@ -33,14 +34,14 @@ const Header = () => {
   const { setStoreInfo } = React.useContext(StoreContext);
 
   const [open, setOpen] = React.useState(false);
-
-  const { position, setPosition } = React.useContext(PositionContext);
+  const { kakaoMap } = React.useContext(MapContext);
+  const { position } = React.useContext(PositionContext);
   const { zoom, setZoom } = React.useContext(ZoomContext);
-  const _lat = position ? position._lat : DEFAULT_POSITION._lat;
-  const _lng = position ? position._lng : DEFAULT_POSITION._lng;
+  const lat = position ? position.lat : DEFAULT_POSITION.lat;
+  const lng = position ? position.lng : DEFAULT_POSITION.lng;
 
-  const debouncedLat = useDebounce(_lat, 500);
-  const debouncedLng = useDebounce(_lng, 500);
+  const debouncedLat = useDebounce(lat, 500);
+  const debouncedLng = useDebounce(lng, 500);
   const debouncedZoom = useDebounce(zoom, 500);
 
   let url = `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
@@ -57,19 +58,14 @@ const Header = () => {
     dispatch({ type: SET_CLICK, isClick: true });
     try {
       NProgress.start();
-      setPosition({
-        y: lat,
-        _lat: lat,
-        x: lng,
-        _lng: lng
-      });
-      setZoom(18);
+      kakaoMap.panTo(new kakao.maps.LatLng(lat, lng));
+      setZoom(3);
       setStoreInfo({ ...store });
     } catch (error) {
       notifyError(NETWORK_ERROR_MESSAGE);
     } finally {
       setOpen(false);
-      await delay(NETWORK_DELAY * 8);
+      await delay(NETWORK_DELAY * 4);
       dispatch({ type: SET_CLICK, isClick: false });
       NProgress.done();
     }
@@ -88,9 +84,10 @@ const Header = () => {
         handler={false}
         open={open}
       >
-        {stores.map(props => (
-          <StoreListItem handleClick={handleClick} {...props} />
-        ))}
+        {stores &&
+          stores.map((props, index) => (
+            <StoreListItem key={index} handleClick={handleClick} {...props} />
+          ))}
       </Drawer>
       <button className="toggle-button" onClick={() => setOpen(!open)}>
         {open ? "지도로 보기" : "목록으로 보기"}

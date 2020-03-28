@@ -11,6 +11,7 @@ import ZoomInIcon from "./ZoomInIcon";
 import ZoomOutIcon from "./ZoomOutIcon";
 import Maybe from "../common/Maybe";
 
+import MapContext from "../../lib/context/MapContext";
 import PositionContext from "../../lib/context/PositionContext";
 import SearchContext from "../../lib/context/SearchContext";
 import StoreContext from "../../lib/context/StoreContext";
@@ -36,28 +37,23 @@ import CenterIcon from "./CenterIcon";
 let selectedMarker = null;
 
 const KakaoMap = () => {
-  /* 검색어 관련 상태 */
   const {
     searchInfo: { isClick }
   } = React.useContext(SearchContext);
 
-  /* 판매점 관련 상태 */
   const { setStoreInfo } = React.useContext(StoreContext);
 
-  /* 지도 관련 상태 */
-  const [kakaoMap, setKakaoMap] = React.useState(null);
   const [clusterer, setClusterer] = React.useState(null);
+  const { kakaoMap, setKakaoMap } = React.useContext(MapContext);
   const { position, setPosition } = React.useContext(PositionContext);
   const { zoom, setZoom } = React.useContext(ZoomContext);
   const lat = position ? position.lat : DEFAULT_POSITION.lat;
   const lng = position ? position.lng : DEFAULT_POSITION.lng;
 
-  /* UI 이벤트 디바운스 */
   const debouncedLat = useDebounce(lat, 500);
   const debouncedLng = useDebounce(lng, 500);
   const debouncedZoom = useDebounce(zoom, 500);
 
-  /* SWR 기반 API 호출 */
   let url = `${SERVER_BASE_URL}/${STORES_BY_GEO_CODE}lat=${convertDecimalPoint(
     debouncedLat
   )}&lng=${convertDecimalPoint(debouncedLng)}&m=${convertZoomToMeter(
@@ -76,63 +72,68 @@ const KakaoMap = () => {
 
     const currentBounds = kakaoMap.getBounds();
 
-    stores.forEach(({ lat, lng, remain_stat }) => {
-      const normalImage = new kakao.maps.MarkerImage(
-        `/${convertRemainToString(remain_stat)}-mask.svg`,
-        new kakao.maps.Size(30, 30),
-        { offset: new kakao.maps.Point(15, 5) }
-      );
+    stores &&
+      stores.forEach(store => {
+        const { lat, lng, remain_stat } = store;
 
-      const activeImage = new kakao.maps.MarkerImage(
-        `/${convertRemainToString(remain_stat)}-mask.svg`,
-        new kakao.maps.Size(32, 32),
-        { offset: new kakao.maps.Point(15, 10) }
-      );
+        const normalImage = new kakao.maps.MarkerImage(
+          `/${convertRemainToString(remain_stat)}-mask.svg`,
+          new kakao.maps.Size(30, 30),
+          { offset: new kakao.maps.Point(15, 5) }
+        );
 
-      const markerPosition = new kakao.maps.LatLng(lat, lng);
+        const activeImage = new kakao.maps.MarkerImage(
+          `/${convertRemainToString(remain_stat)}-mask.svg`,
+          new kakao.maps.Size(32, 32),
+          { offset: new kakao.maps.Point(15, 10) }
+        );
 
-      const marker = new kakao.maps.Marker({
-        position: markerPosition,
-        image: normalImage,
-        zIndex: convertRemainToZindex(remain_stat)
-      });
+        const markerPosition = new kakao.maps.LatLng(lat, lng);
 
-      marker.normalImage = normalImage;
+        const marker = new kakao.maps.Marker({
+          position: markerPosition,
+          image: normalImage,
+          zIndex: convertRemainToZindex(remain_stat)
+        });
 
-      kakao.maps.event.addListener(marker, "mouseover", function() {
-        if (!selectedMarker || selectedMarker !== marker) {
-          marker.setImage(activeImage);
-          marker.setZIndex(10);
+        marker.normalImage = normalImage;
+
+        kakao.maps.event.addListener(marker, "mouseover", function() {
+          if (!selectedMarker || selectedMarker !== marker) {
+            marker.setImage(activeImage);
+            marker.setZIndex(10);
+          }
+        });
+
+        kakao.maps.event.addListener(marker, "mouseout", function() {
+          if (!selectedMarker || selectedMarker !== marker) {
+            marker.setImage(normalImage);
+            marker.setZIndex(convertRemainToZindex(remain_stat));
+          }
+        });
+
+        kakao.maps.event.addListener(marker, "click", function() {
+          if (!selectedMarker || selectedMarker !== marker) {
+            !!selectedMarker &&
+              selectedMarker.setImage(selectedMarker.normalImage);
+            marker.setImage(activeImage);
+            marker.setZIndex(10);
+            kakaoMap.panTo(new kakao.maps.LatLng(lat, lng));
+            setStoreInfo({ ...store });
+          }
+          selectedMarker = marker;
+        });
+
+        const storePosition = new kakao.maps.LatLng(lat, lng);
+
+        if (currentBounds.contain(storePosition)) {
+          showMarker(kakaoMap, marker);
+          clusterer && clusterer.addMarker(marker);
+        } else {
+          hideMarker(marker);
+          clusterer && clusterer.removeMarker(marker);
         }
       });
-
-      kakao.maps.event.addListener(marker, "mouseout", function() {
-        if (!selectedMarker || selectedMarker !== marker) {
-          marker.setImage(normalImage);
-          marker.setZIndex(convertRemainToZindex(remain_stat));
-        }
-      });
-
-      kakao.maps.event.addListener(marker, "click", function() {
-        if (!selectedMarker || selectedMarker !== marker) {
-          !!selectedMarker &&
-            selectedMarker.setImage(selectedMarker.normalImage);
-          marker.setImage(activeImage);
-          marker.setZIndex(10);
-        }
-        selectedMarker = marker;
-      });
-
-      const storePosition = new kakao.maps.LatLng(lat, lng);
-
-      if (currentBounds.contain(storePosition)) {
-        showMarker(kakaoMap, marker);
-        clusterer.addMarker(marker);
-      } else {
-        hideMarker(marker);
-        clusterer.removeMarker(marker);
-      }
-    });
   };
 
   const showMarker = (map, marker) => {
@@ -175,6 +176,9 @@ const KakaoMap = () => {
 
     kakao.maps.event.addListener(map, "center_changed", handleBounds);
     kakao.maps.event.addListener(map, "idle", handleChange);
+    kakao.maps.event.addListener(map, "click", () =>
+      setStoreInfo(INITIAL_STORE_STATE)
+    );
     kakao.maps.event.addListener(clusterer, "clusterclick", handleClusterClick);
 
     function handleBounds() {

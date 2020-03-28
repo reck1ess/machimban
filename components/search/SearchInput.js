@@ -2,7 +2,7 @@ import NProgress from "nprogress";
 import useSWR from "swr";
 
 import Maybe from "../common/Maybe";
-import PositionContext from "../../lib/context/PositionContext";
+import MapContext from "../../lib/context/MapContext";
 import SearchContext from "../../lib/context/SearchContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
@@ -18,16 +18,14 @@ import {
 import delay from "../../lib/utils/delay";
 import fetcher from "../../lib/utils/fetcher";
 import notifyError from "../../lib/utils/notifyError";
-import convertNaverLat from "../../lib/utils/convertNaverLat";
-import convertNaverLng from "../../lib/utils/convertNaverLng";
 import StoreContext from "../../lib/context/StoreContext";
 
 const SearchInput = () => {
-  const { setPosition } = React.useContext(PositionContext);
   const {
     searchInfo: { isFocus },
     dispatch
   } = React.useContext(SearchContext);
+  const { kakaoMap } = React.useContext(MapContext);
   const { setStoreInfo } = React.useContext(StoreContext);
   const { setZoom } = React.useContext(ZoomContext);
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -55,23 +53,22 @@ const SearchInput = () => {
     e.preventDefault();
   };
 
-  const handleClick = async (x, y) => {
-    const navermaps = window.naver.maps;
+  const handleClick = async ({ lat, lng }) => {
     addresses = [];
     dispatch({ type: SET_CLICK, isClick: true });
     setStoreInfo(INITIAL_STORE_STATE);
 
     try {
       NProgress.start();
-      setPosition(new navermaps.LatLng(convertNaverLat(y), convertNaverLng(x)));
-      setZoom(16);
+      kakaoMap.panTo(new kakao.maps.LatLng(lat, lng));
+      setZoom(3);
     } catch (error) {
       notifyError(NETWORK_ERROR_MESSAGE);
     } finally {
       dispatch({ type: SET_KEYWORD, keyword: searchTerm });
       setSearchTerm("");
       dispatch({ type: TOGGLE_FOCUS });
-      await delay(NETWORK_DELAY * 8);
+      await delay(NETWORK_DELAY * 4);
       dispatch({ type: SET_CLICK, isClick: false });
       NProgress.done();
     }
@@ -105,7 +102,7 @@ const SearchInput = () => {
               <div
                 key={index}
                 className="auto-suggestion-presenter"
-                onClick={() => handleClick(x, y)}
+                onClick={() => handleClick({ lat: y, lng: x })}
               >
                 <Maybe test={index !== 0}>
                   <div className="horizontal-line" />

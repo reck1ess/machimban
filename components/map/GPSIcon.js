@@ -1,22 +1,16 @@
 import NProgress from "nprogress";
 import React from "react";
 
-import PositionContext from "../../lib/context/PositionContext";
+import MapContext from "../../lib/context/MapContext";
 
 const GPSIcon = () => {
-  const { position, setPosition } = React.useContext(PositionContext);
+  const { kakaoMap } = React.useContext(MapContext);
 
   const handleGPS = async () => {
     try {
       NProgress.start();
       await navigator.geolocation.getCurrentPosition(
-        position =>
-          setPosition({
-            y: position.coords.latitude,
-            _lat: position.coords.latitude,
-            x: position.coords.longitude,
-            _lng: position.coords.longitude
-          }),
+        position => kakaoMap.panTo(new kakao.maps.LatLng(lat, lng)),
         err => console.log(err)
       );
     } catch (error) {
