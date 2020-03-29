@@ -4,7 +4,6 @@ import useSWR from "swr";
 import Maybe from "../common/Maybe";
 import MapContext from "../../lib/context/MapContext";
 import SearchContext from "../../lib/context/SearchContext";
-import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
 import {
   INITIAL_STORE_STATE,
@@ -12,7 +11,6 @@ import {
   NETWORK_DELAY,
   SEARCH_INPUT_PLACEHOLDER,
   SET_KEYWORD,
-  SET_CLICK,
   TOGGLE_FOCUS
 } from "../../lib/utils/constant";
 import delay from "../../lib/utils/delay";
@@ -54,7 +52,6 @@ const SearchInput = () => {
 
   const handleClick = async ({ lat, lng }) => {
     addresses = [];
-    dispatch({ type: SET_CLICK, isClick: true });
     setStoreInfo(INITIAL_STORE_STATE);
 
     try {
@@ -68,7 +65,6 @@ const SearchInput = () => {
       setSearchTerm("");
       dispatch({ type: TOGGLE_FOCUS });
       await delay(NETWORK_DELAY * 4);
-      dispatch({ type: SET_CLICK, isClick: false });
       NProgress.done();
     }
   };

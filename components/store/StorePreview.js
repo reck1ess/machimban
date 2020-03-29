@@ -11,17 +11,7 @@ import MaskIcon from "./MaskIcon";
 
 const StorePreview = () => {
   const { storeInfo } = React.useContext(StoreContext);
-  const {
-    code,
-    name,
-    addr,
-    type,
-    lat,
-    lng,
-    stock_at,
-    remain_stat,
-    created_at
-  } = storeInfo;
+  const { name, addr, type, stock_at, remain_stat } = storeInfo;
 
   return (
     <div className="store-preview-container">
@@ -125,7 +115,7 @@ const StorePreview = () => {
         }
         .mask-info {
           position: absolute;
-          bottom: 20px;
+          top: 110px;
         }
         .mask-icon {
           width: 30px;

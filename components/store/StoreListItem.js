@@ -9,14 +9,13 @@ import convertStockToBorderColor from "../../lib/utils/convertStockToBorderColor
 import MaskIcon from "./MaskIcon";
 
 const StoreListItem = ({ handleClick, ...props }) => {
-  const { name, addr, type, stock_at, remain_stat } = props;
+  const { code, name, addr, type, stock_at, remain_stat } = props;
+
   return (
     <React.Fragment>
       <div
-        className="store-preview-presenter"
-        onClick={() => {
-          handleClick(props);
-        }}
+        className="store-list-item-presenter"
+        onClick={() => handleClick({ ...props })}
       >
         <div
           className="stock-circle"
@@ -56,14 +55,13 @@ const StoreListItem = ({ handleClick, ...props }) => {
           margin: 0;
           padding: 0;
         }
-        .store-preview-presenter {
+        .store-list-item-presenter {
           position: relative;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
+          display: inline-block;
           width: calc(100vw - 24px);
           max-width: 500px;
           height: 150px;
+          margin-right: 15px;
           padding: 30px 18px;
           background: #fff;
           color: #000;
