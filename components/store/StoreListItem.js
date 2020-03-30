@@ -1,7 +1,7 @@
 import React from "react";
 
 import convertCreatedTime from "../../lib/utils/convertCreatedTime";
-import convertStoreType from "../../lib/utils/covertStoreType";
+import convertStoreType from "../../lib/utils/convertStoreType";
 import convertStockToNumber from "../../lib/utils/convertStockToNumber";
 import convertStockToString from "../../lib/utils/convertStockToString";
 import convertStockToColor from "../../lib/utils/convertStockToColor";
