@@ -57,12 +57,10 @@ const StoreListItem = ({ handleClick, ...props }) => {
         }
         .store-list-item-presenter {
           position: relative;
-          display: inline-block;
-          width: calc(100vw - 24px);
+          width: 100%;
           max-width: 500px;
           height: 150px;
-          margin-right: 15px;
-          padding: 30px 18px;
+          padding: 30px 15px;
           background: #fff;
           color: #000;
           cursor: pointer;
@@ -73,8 +71,8 @@ const StoreListItem = ({ handleClick, ...props }) => {
           align-items: center;
           justify-content: center;
           right: 15px;
-          top: 50%;
-          transform: translateY(-50%);
+          top: 75%;
+          transform: translateY(-75%);
           width: 80px;
           height: 80px;
           border-radius: 50%;

@@ -1,6 +1,6 @@
 import Drawer from "rc-drawer";
 import { renderToStaticMarkup } from "react-dom/server";
-import useSWR from "swr";
+import useSWR, { trigger } from "swr";
 
 import GPSIcon from "./GPSIcon";
 import RefreshIcon from "./RefreshIcon";
@@ -28,12 +28,14 @@ import fetcher from "../../lib/utils/fetcher";
 import notifyError from "../../lib/utils/notifyError";
 import CenterIcon from "./CenterIcon";
 
+let stores = [];
 let storeMap = {};
 let selectedMarker = null;
 
-const KakaoMap = () => {
+const KakaoMap = ({ setLoading }) => {
   const [clusterer, setClusterer] = React.useState(null);
   const [open, setOpen] = React.useState(false);
+  const [address, setAddress] = React.useState("");
   const { setStoreInfo } = React.useContext(StoreContext);
   const { kakaoMap, setKakaoMap } = React.useContext(MapContext);
   const { position, setPosition } = React.useContext(PositionContext);
@@ -56,7 +58,9 @@ const KakaoMap = () => {
     notifyError(NETWORK_ERROR_MESSAGE);
   }
 
-  const stores = fetchedStores ? fetchedStores.stores : [];
+  if (!!fetchedStores) {
+    stores = fetchedStores.stores;
+  }
 
   const updateMarker = () => {
     if (!kakaoMap) return;
@@ -139,7 +143,7 @@ const KakaoMap = () => {
     marker.setMap(null);
   };
 
-  const handleClick = props => {
+  const handleMarkerClick = props => {
     const { code, lat, lng } = props;
 
     if (!storeMap[code]) {
@@ -161,6 +165,11 @@ const KakaoMap = () => {
     selectedMarker = marker;
   };
 
+  const handleButtonClick = () => {
+    setOpen(!open);
+    trigger(url);
+  };
+
   React.useEffect(() => {
     const container = document.getElementById("map");
     const options = {
@@ -170,6 +179,7 @@ const KakaoMap = () => {
     };
 
     const map = new kakao.maps.Map(container, options);
+    const geocoder = new kakao.maps.services.Geocoder();
 
     setKakaoMap(map);
 
@@ -202,12 +212,28 @@ const KakaoMap = () => {
       centerPin.setMap(map);
     }
 
+    function searchAddrFromCoords(coords, callback) {
+      geocoder.coord2RegionCode(coords.getLng(), coords.getLat(), callback);
+    }
+
+    function setCurrentAddress(result, status) {
+      if (status === kakao.maps.services.Status.OK) {
+        for (var i = 0; i < result.length; i++) {
+          if (result[i].region_type === "H") {
+            setAddress(result[i].address_name);
+            break;
+          }
+        }
+      }
+    }
+
     function handleChange() {
       const position = map.getCenter();
       const { Ha: lat, Ga: lng } = position;
       const zoom = map.getLevel();
       setPosition({ lat, lng });
       setZoom(zoom);
+      searchAddrFromCoords(map.getCenter(), setCurrentAddress);
     }
 
     function handleClusterClick(cluster) {
@@ -224,157 +250,79 @@ const KakaoMap = () => {
     <React.Fragment>
       <div id="map" style={{ width: "100%", height: "100%" }} />
       <GPSIcon />
-      <RefreshIcon />
-      <ZoomInIcon />
-      <ZoomOutIcon />
+      <RefreshIcon setLoading={setLoading} />
+      <ZoomInIcon setLoading={setLoading} />
+      <ZoomOutIcon setLoading={setLoading} />
       <Drawer
         placement="bottom"
         width="100vw"
-        height="calc(100vh - 58px)"
+        height="calc(100% - 58px)"
         handler={false}
         open={open}
       >
-        {stores
-          ? stores.map((props, index) => (
-              <StoreListItem key={index} handleClick={handleClick} {...props} />
-            ))
-          : `현재 위치에 공적 마스크 판매점이 없습니다.`}
+        <p className="store-info-container">
+          📍현재 위치 <span className="strong-text">{address}</span>
+          <br />
+          🧭 반경{" "}
+          <span className="strong-text">
+            {convertZoomToMeter(zoom)}m
+          </span>에 <span className="strong-text">{stores.length}개</span>의
+          판매점이 있습니다.
+        </p>
+        {stores.length > 0 ? (
+          stores.map((props, index) => (
+            <StoreListItem
+              key={index}
+              handleClick={handleMarkerClick}
+              {...props}
+            />
+          ))
+        ) : (
+          <div className="store-result-none">
+            현재 위치에 공적 마스크 판매점이 없습니다.
+          </div>
+        )}
       </Drawer>
-      <button className="toggle-button" onClick={() => setOpen(!open)}>
+      <button className="toggle-button" onClick={handleButtonClick}>
         {open ? "지도로 보기" : "목록으로 보기"}
       </button>
-      <style jsx global>
+      <style jsx>
         {`
-          .drawer {
-            position: fixed;
+          .store-info-container {
+            position: sticky;
             top: 0;
-            z-index: 5;
-          }
-          .drawer > * {
-            transition: transform 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86),
-              opacity 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86),
-              box-shadow 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
-          }
-          .drawer .drawer-mask {
-            background: #000;
-            opacity: 0;
             width: 100%;
-            height: 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            transition: opacity 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86),
-              height 0s ease 0.3s;
-          }
-          .drawer-content-wrapper {
-            position: fixed;
+            max-width: 500px;
+            text-align: left;
+            padding: 20px 15px 20px;
+            font-size: 15px;
+            color: #8f8f8f;
             background: #fff;
+            z-index: 999;
+            border-bottom: 1px solid #f1f3f5;
           }
-          .drawer-content {
-            overflow: auto;
-            z-index: 1;
-            position: relative;
+          .strong-text {
+            color: #666;
+            font-weight: 500;
+          }
+          .store-result-none {
             display: flex;
-            flex-direction: column;
             align-items: center;
-          }
-          .drawer-handle {
-            position: absolute;
-            top: 72px;
-            width: 41px;
-            height: 40px;
-            cursor: pointer;
-            z-index: 0;
-            text-align: center;
-            line-height: 40px;
-            font-size: 16px;
-            display: flex;
             justify-content: center;
-            align-items: center;
-            background: #fff;
-          }
-          .drawer-handle-icon {
-            width: 14px;
-            height: 2px;
-            background: #333;
-            position: relative;
-            transition: background 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
-          }
-          .drawer-handle-icon:before,
-          .drawer-handle-icon:after {
-            content: "";
-            display: block;
-            position: absolute;
-            background: #333;
             width: 100%;
-            height: 2px;
-            transition: transform 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
-          }
-          .drawer-handle-icon:before {
-            top: -5px;
-          }
-          .drawer-handle-icon:after {
-            top: 5px;
-          }
-          .drawer-bottom {
-            width: 100%;
-            height: 0%;
-          }
-          .drawer-bottom .drawer-content-wrapper,
-          .drawer-bottom .drawer-content {
-            width: 100%;
-          }
-          .drawer-bottom .drawer-content {
             height: 100%;
-          }
-          .drawer-bottom.drawer-open {
-            height: 100%;
-          }
-          .drawer-bottom.drawer-open.no-mask {
-            height: 0%;
-          }
-          .drawer-bottom .drawer-handle {
-            left: 50%;
-            margin-left: -20px;
-          }
-          .drawer-bottom {
-            bottom: 0;
-          }
-          .drawer-bottom .drawer-content-wrapper {
-            bottom: 0;
-          }
-          .drawer-bottom .drawer-handle {
-            top: -40px;
-            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
-            border-radius: 4px 4px 0 0;
-          }
-          .drawer-bottom.drawer-open .drawer-content-wrapper {
-            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15);
-          }
-          .drawer.drawer-open .drawer-mask {
-            opacity: 0.3;
-            height: 100%;
-            animation: rcDrawerFadeIn 0.3s cubic-bezier(0.78, 0.14, 0.15, 0.86);
-            transition: none;
-          }
-          .drawer.drawer-open .drawer-handle-icon {
-            background: transparent;
-          }
-          .drawer.drawer-open .drawer-handle-icon:before {
-            transform: translateY(5px) rotate(45deg);
-          }
-          .drawer.drawer-open .drawer-handle-icon:after {
-            transform: translateY(-5px) rotate(-45deg);
+            font-size: 20px;
+            font-weight: 500;
           }
           .toggle-button {
             position: fixed;
-            bottom: 60px;
+            bottom: 20px;
             left: 0;
             right: 0;
             margin-left: auto;
             margin-right: auto;
-            width: 120px;
-            height: 40px;
+            width: 160px;
+            height: 45px;
             border: none;
             border-radius: 25px;
             background: #8c7ae6;
@@ -382,13 +330,8 @@ const KakaoMap = () => {
             font-size: 15px;
             font-weight: 600;
             z-index: 9;
-          }
-          @keyframes rcDrawerFadeIn {
-            0% {
-              opacity: 0;
-            }
-            100% {
-              opacity: 0.3;
+            @media screen and (min-width: 768px) {
+              bottom: 35px;
             }
           }
         `}

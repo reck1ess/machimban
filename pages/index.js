@@ -47,7 +47,7 @@ const Home = () => {
       >
         <Div100vh as="main" className="main-container">
           <Header />
-          <KakaoMap />
+          <KakaoMap setLoading={setLoading} />
           <StorePreview />
           <Maybe test={isLoading}>
             <LoadingSpinner />
