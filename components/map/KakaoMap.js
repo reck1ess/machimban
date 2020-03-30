@@ -375,6 +375,7 @@ const KakaoMap = () => {
             margin-right: auto;
             width: 120px;
             height: 40px;
+            border: none;
             border-radius: 25px;
             background: #8c7ae6;
             color: #fff;
