@@ -330,6 +330,8 @@ const KakaoMap = ({ setLoading }) => {
             font-size: 15px;
             font-weight: 600;
             z-index: 9;
+            opacity: ${open ? 0.7 : 1};
+            transition: opacity 1s;
             @media screen and (min-width: 768px) {
               bottom: 35px;
             }

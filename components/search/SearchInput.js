@@ -27,6 +27,7 @@ const SearchInput = () => {
   const { setStoreInfo } = React.useContext(StoreContext);
   const [searchTerm, setSearchTerm] = React.useState("");
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const inputRef = React.useRef();
 
   let addresses = [];
 
@@ -69,11 +70,20 @@ const SearchInput = () => {
     }
   };
 
+  React.useEffect(() => {
+    if (isFocus) {
+      inputRef.current.focus();
+    } else {
+      inputRef.current.blur();
+    }
+  }, [isFocus]);
+
   return (
     <form onSubmit={handleSubmit}>
       <input
         type="search"
         name="input"
+        ref={inputRef}
         value={searchTerm}
         disabled={!isFocus}
         autoCapitalize="none"
@@ -240,9 +250,13 @@ const SearchInput = () => {
             width: calc(100vw - 37px);
             max-width: 500px;
             height: auto;
+            padding-bottom: 40px;
             max-height: 500px;
             overflow-x: hidden;
             overflow-y: scroll;
+            @media screen and (min-width: 768px) {
+              padding-bottom: 0;
+            }
           }
           .auto-suggestion-presenter {
             position: relative;

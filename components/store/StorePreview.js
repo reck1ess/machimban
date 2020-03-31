@@ -1,5 +1,6 @@
 import React from "react";
 
+import SearchContext from "../../lib/context/SearchContext";
 import StoreContext from "../../lib/context/StoreContext";
 import convertCreatedTime from "../../lib/utils/convertCreatedTime";
 import convertStoreType from "../../lib/utils/convertStoreType";
@@ -10,6 +11,9 @@ import convertStockToBorderColor from "../../lib/utils/convertStockToBorderColor
 import MaskIcon from "./MaskIcon";
 
 const StorePreview = () => {
+  const {
+    searchInfo: { isFocus }
+  } = React.useContext(SearchContext);
   const { storeInfo } = React.useContext(StoreContext);
   const { name, addr, type, stock_at, remain_stat } = storeInfo;
 
@@ -47,7 +51,7 @@ const StorePreview = () => {
           left: 50%;
           transition: transform 0.2s, opacity 0.8s;
           transform: ${
-            storeInfo.addr.length === 0
+            storeInfo.addr.length === 0 || isFocus
               ? "translate(-50%, 150px)"
               : "translate(-50%, 0px)"
           };
