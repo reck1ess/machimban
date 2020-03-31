@@ -2,29 +2,6 @@ import Document, { Head, Main, NextScript } from "next/document";
 import React from "react";
 import flush from "styled-jsx/server";
 
-const globalStyles = `
-html,
-body {
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-}
-* {
-  box-sizing: border-box;
-  user-select: none;
-  -webkit-touch-callout: none;
-  -webkit-tap-highlight-color:rgba(255,255,255,0);
-}
-*::focus {
-  outline: none;
-}
-img.lazyload:not([src]) {
-  visibility: hidden;
-}
-`;
-
 class MyDocument extends Document {
   static async getInitialProps(ctx) {
     const initialProps = await Document.getInitialProps(ctx);
@@ -157,7 +134,6 @@ class MyDocument extends Document {
           />
           <link rel="stylesheet" type="text/css" href="/nprogress.css" />
           <link rel="manifest" href="/manifest.json" />
-          <style type="text/css">{globalStyles}</style>
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{

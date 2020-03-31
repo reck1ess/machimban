@@ -34,6 +34,27 @@ export default ({ Component, pageProps }) => {
       <Component {...pageProps} />
       <style jsx global>
         {`
+          html,
+          body {
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
+              Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
+              sans-serif;
+          }
+          * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+          }
+          *::focus {
+            outline: none;
+          }
+          img.lazyload:not([src]) {
+            visibility: hidden;
+          }
           .Toastify__toast--default {
             background: #8c7ae6;
             color: #fff;
