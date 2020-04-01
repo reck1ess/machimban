@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 import SearchContext from "../../lib/context/SearchContext";
 import StoreContext from "../../lib/context/StoreContext";
@@ -9,18 +10,29 @@ import convertStockToString from "../../lib/utils/convertStockToString";
 import convertStockToColor from "../../lib/utils/convertStockToColor";
 import convertStockToBorderColor from "../../lib/utils/convertStockToBorderColor";
 import MaskIcon from "./MaskIcon";
+import { KAKAO_NAVIGATION_BASE_URL } from "../../lib/utils/constant";
 
 const StorePreview = () => {
   const {
     searchInfo: { isFocus }
   } = React.useContext(SearchContext);
   const { storeInfo } = React.useContext(StoreContext);
-  const { name, addr, type, stock_at, remain_stat } = storeInfo;
+  const { name, addr, lat, lng, type, stock_at, remain_stat } = storeInfo;
 
   return (
     <div className="store-preview-container">
       <div className="store-preview-presenter">
         <div className="stock-circle">{convertStockToString(remain_stat)}</div>
+        <Link
+          href={`${KAKAO_NAVIGATION_BASE_URL}/${encodeURIComponent(
+            name
+          )},${lat},${lng}`}
+          passHref
+        >
+          <a className="store-navigation-link" target="_blank">
+            길찾기 🔜
+          </a>
+        </Link>
         <p className="store-main-info">
           <span className="store-name">{name}</span>
           <span className="store-type">{convertStoreType(type)}</span>
@@ -65,6 +77,8 @@ const StorePreview = () => {
           width: calc(100vw - 24px);
           max-width: 500px;
           height: 150px;
+          border-top-left-radius: 5px;
+          border-top-right-radius: 5px;
           padding: 20px 18px;
           background: #fff;
           color: #000;
@@ -74,9 +88,8 @@ const StorePreview = () => {
           display: flex;
           align-items: center;
           justify-content: center;
+          top: 20px;
           right: 15px;
-          top: 50%;
-          transform: translateY(-50%);
           width: 80px;
           height: 80px;
           border-radius: 50%;
@@ -86,6 +99,13 @@ const StorePreview = () => {
             remain_stat
           )}`};
           background: ${convertStockToColor(remain_stat)}
+        }
+        .store-navigation-link {
+          position: absolute;
+          right: 20px;
+          top: 110px;
+          color: #000;
+          text-decoration: none;
         }
         .store-name {
           font-size: 18px;

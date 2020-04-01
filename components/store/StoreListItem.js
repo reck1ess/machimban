@@ -18,7 +18,7 @@ const StoreListItem = ({ handleClick, ...props }) => {
         onClick={() => handleClick({ ...props })}
       >
         <div
-          className="stock-circle"
+          className="store-circle"
           style={{
             textShadow: `1px 1px 2px ${convertStockToBorderColor(remain_stat)}`,
             background: `${convertStockToColor(remain_stat)}`
@@ -65,7 +65,7 @@ const StoreListItem = ({ handleClick, ...props }) => {
           color: #000;
           cursor: pointer;
         }
-        .stock-circle {
+        .store-circle {
           position: absolute;
           display: flex;
           align-items: center;
