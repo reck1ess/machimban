@@ -319,6 +319,7 @@ const KakaoMap = ({ setLoading }) => {
             bottom: 20px;
             left: 0;
             right: 0;
+            display: ${zoom < 6 ? "block" : "none"};
             margin-left: auto;
             margin-right: auto;
             width: 160px;
