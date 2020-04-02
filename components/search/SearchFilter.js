@@ -11,8 +11,9 @@ const SearchFilter = () => {
   const { searchInfo, dispatch } = React.useContext(SearchContext);
   return (
     <div className="store-filter-container">
-      {FILTER_LIST.map(name => (
+      {FILTER_LIST.map((name, index) => (
         <button
+          key={index}
           className="store-filter-button"
           onClick={() => dispatch({ type: convertStockToAction(name) })}
           style={{
