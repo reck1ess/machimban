@@ -23,16 +23,15 @@ const StorePreview = () => {
     <div className="store-preview-container">
       <div className="store-preview-presenter">
         <div className="stock-circle">{convertStockToString(remain_stat)}</div>
-        <Link
+        <a
+          className="store-navigation-link"
           href={`${KAKAO_NAVIGATION_BASE_URL}/${encodeURIComponent(
             name
           )},${lat},${lng}`}
-          passHref
+          target="_blank"
         >
-          <a className="store-navigation-link" target="_blank">
-            길찾기 🔜
-          </a>
-        </Link>
+          길찾기 🔜
+        </a>
         <p className="store-main-info">
           <span className="store-name">{name}</span>
           <span className="store-type">{convertStoreType(type)}</span>
