@@ -6,19 +6,23 @@ import GPSIcon from "./GPSIcon";
 import RefreshIcon from "./RefreshIcon";
 import ZoomInIcon from "./ZoomInIcon";
 import ZoomOutIcon from "./ZoomOutIcon";
+import SearchFilter from "../search/SearchFilter";
 import StoreListItem from "../store/StoreListItem";
 
 import MapContext from "../../lib/context/MapContext";
 import PositionContext from "../../lib/context/PositionContext";
+import SearchContext from "../../lib/context/SearchContext";
 import StoreContext from "../../lib/context/StoreContext";
 import ZoomContext from "../../lib/context/ZoomContext";
 import useDebounce from "../../lib/hooks/useDebounce";
+import usePrevious from "../../lib/hooks/usePrevious";
 import {
   SERVER_BASE_URL,
   STORES_BY_GEO_CODE,
   NETWORK_ERROR_MESSAGE,
   INITIAL_STORE_STATE,
-  DEFAULT_POSITION
+  DEFAULT_POSITION,
+  FILTER_LIST
 } from "../../lib/utils/constant";
 import convertDecimalPoint from "../../lib/utils/convertDecimalPoint";
 import convertZoomToMeter from "../../lib/utils/convertZoomToMeter";
@@ -27,6 +31,7 @@ import convertRemainToZindex from "../../lib/utils/convertRemainToZindex";
 import fetcher from "../../lib/utils/fetcher";
 import notifyError from "../../lib/utils/notifyError";
 import CenterIcon from "./CenterIcon";
+import omitBreakStatus from "../../lib/utils/omitBreakStatus";
 
 let stores = [];
 let storeMap = {};
@@ -36,12 +41,18 @@ const KakaoMap = ({ setLoading }) => {
   const [clusterer, setClusterer] = React.useState(null);
   const [open, setOpen] = React.useState(false);
   const [address, setAddress] = React.useState("");
+  const { searchInfo } = React.useContext(SearchContext);
   const { setStoreInfo } = React.useContext(StoreContext);
   const { kakaoMap, setKakaoMap } = React.useContext(MapContext);
   const { position, setPosition } = React.useContext(PositionContext);
   const { zoom, setZoom } = React.useContext(ZoomContext);
   const lat = position ? position.lat : DEFAULT_POSITION.lat;
   const lng = position ? position.lng : DEFAULT_POSITION.lng;
+  const { plenty, some, few, empty } = searchInfo;
+  const prevPlenty = usePrevious(plenty);
+  const prevSome = usePrevious(some);
+  const prevFew = usePrevious(few);
+  const prevEmpty = usePrevious(empty);
 
   const debouncedLat = useDebounce(lat, 500);
   const debouncedLng = useDebounce(lng, 500);
@@ -62,8 +73,33 @@ const KakaoMap = ({ setLoading }) => {
     stores = fetchedStores.stores;
   }
 
+  const isFilterChanged = () => {
+    if (
+      plenty !== prevPlenty ||
+      some !== prevSome ||
+      few !== prevFew ||
+      empty !== prevEmpty
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   const updateMarker = () => {
     if (!kakaoMap) return;
+
+    if (isFilterChanged() && clusterer) {
+      clusterer.clear();
+      Object.values(storeMap).forEach(marker => {
+        FILTER_LIST.filter(name => !!searchInfo[name]).forEach(status => {
+          if (marker.getZIndex() === convertRemainToZindex(status)) {
+            clusterer.addMarker(marker);
+          }
+        });
+      });
+      return;
+    }
 
     const currentBounds = kakaoMap.getBounds();
 
@@ -123,7 +159,10 @@ const KakaoMap = ({ setLoading }) => {
 
         const storePosition = new kakao.maps.LatLng(lat, lng);
 
-        if (currentBounds.contain(storePosition)) {
+        if (
+          currentBounds.contain(storePosition) &&
+          searchInfo[omitBreakStatus(remain_stat)]
+        ) {
           showMarker(kakaoMap, marker);
           clusterer && clusterer.addMarker(marker);
         } else {
@@ -244,11 +283,12 @@ const KakaoMap = ({ setLoading }) => {
 
   React.useEffect(() => {
     updateMarker();
-  }, [stores]);
+  }, [stores, plenty, some, few, empty]);
 
   return (
     <React.Fragment>
       <div id="map" style={{ width: "100%", height: "100%" }} />
+      <SearchFilter />
       <GPSIcon />
       <RefreshIcon setLoading={setLoading} />
       <ZoomInIcon setLoading={setLoading} />
@@ -331,6 +371,7 @@ const KakaoMap = ({ setLoading }) => {
             font-size: 15px;
             font-weight: 600;
             z-index: 9;
+            outline: none;
             opacity: ${open ? 0.7 : 1};
             transition: opacity 1s;
             @media screen and (min-width: 768px) {
