@@ -19,7 +19,7 @@ const StoreList = ({ address, zoom, stores, handleClick }: StoreListProps) => {
         📍현재 위치 <span className="strong-text">{address}</span>
         <br />
         🧭 반경 <span className="strong-text">{convertZoomToMeter(zoom)}m</span>
-        에<span className="strong-text">{stores.length}개</span>의 판매점이
+        에 <span className="strong-text">{stores.length}개</span>의 판매점이
         있습니다.
       </p>
       <Maybe test={stores?.length > 0}>

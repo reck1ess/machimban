@@ -28,7 +28,7 @@ const ToggleButton = ({ open, zoom, handleClick }: ToggleButtonProps) => {
             color: #fff;
             font-size: 15px;
             font-weight: 600;
-            z-index: 9;
+            z-index: 11;
             outline: none;
             opacity: ${open ? 0.7 : 1};
             transition: opacity 1s;

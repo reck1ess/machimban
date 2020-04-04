@@ -43,6 +43,7 @@ const GPSIcon = dynamic(() => import("./GPSIcon"), {
 });
 
 let stores: any = [];
+let filteredStores: any = [];
 let storeMap: any = {};
 let selectedMarker: any = null;
 
@@ -111,6 +112,8 @@ const KakaoMap = () => {
           }
         });
       });
+
+      filteredStores = stores.filter(store => !!searchInfo[store.remain_stat]);
       return;
     }
 
@@ -174,15 +177,21 @@ const KakaoMap = () => {
 
       const storePosition = new customWindow.kakao.maps.LatLng(lat, lng);
 
+      const targetIndex = filteredStores.findIndex(
+        store => store.code === code
+      );
+
       if (
         currentBounds.contain(storePosition) &&
         searchInfo[omitBreakStatus(remain_stat)]
       ) {
         showMarker(kakaoMap, marker);
         clusterer?.addMarker(marker);
+        searchInfo[store.remain_stat] && filteredStores.push(store);
       } else {
         hideMarker(marker);
         clusterer?.removeMarker(marker);
+        targetIndex !== -1 && filteredStores.splice(targetIndex, 1);
       }
     });
   };
@@ -326,7 +335,7 @@ const KakaoMap = () => {
         <StoreList
           address={address}
           zoom={zoom}
-          stores={stores}
+          stores={filteredStores}
           handleClick={handleMarkerClick}
         />
       </Drawer>
