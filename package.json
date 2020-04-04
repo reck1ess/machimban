@@ -7,11 +7,12 @@
     "start": "next start"
   },
   "dependencies": {
-    "date-fns": "^2.11.0",
+    "axios": "^0.19.2",
+    "date-fns": "^2.11.1",
     "dotenv": "^8.2.0",
     "isomorphic-unfetch": "^3.0.0",
     "lazysizes": "^5.2.0",
-    "next": "9.3.2",
+    "next": "^9.3.4",
     "next-offline": "^5.0.0",
     "node-sass": "^4.13.1",
     "nprogress": "^0.2.0",
@@ -19,11 +20,13 @@
     "react": "16.13.0",
     "react-div-100vh": "^0.3.8",
     "react-dom": "16.13.0",
-    "react-naver-maps": "0.0.13",
     "react-toastify": "^5.5.0",
     "styled-jsx-plugin-sass": "^1.0.0",
-    "supercluster": "^7.0.0",
-    "swr": "^0.1.18",
-    "use-supercluster": "^0.2.5"
+    "swr": "^0.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^13.11.0",
+    "@types/react": "^16.9.32",
+    "typescript": "^3.8.3"
   }
 }
