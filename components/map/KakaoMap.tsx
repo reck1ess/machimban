@@ -332,12 +332,7 @@ const KakaoMap = () => {
         handler={false}
         open={open}
       >
-        <StoreList
-          address={address}
-          zoom={zoom}
-          stores={filteredStores}
-          handleClick={handleMarkerClick}
-        />
+        <StoreList address={address} handleClick={handleMarkerClick} />
       </Drawer>
       <ToggleButton open={open} zoom={zoom} handleClick={handleButtonClick} />
     </React.Fragment>
