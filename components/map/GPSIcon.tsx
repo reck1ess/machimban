@@ -2,25 +2,53 @@ import NProgress from "nprogress";
 import React from "react";
 
 import { useMapState } from "../../lib/context/MapContext";
+import {
+  DEFAULT_GEOLOCATION_ERROR_MESSAGE,
+  SAFARI_GEOLOCATION_ERROR_MESSAGE
+} from "../../lib/utils/constant";
+import getLocationErrorMessage from "../../lib/utils/getLocationErrorMessage";
 
 const GPSIcon = () => {
   const customWindow: any = window;
   const kakaoMap = useMapState();
 
-  const handleGPS = async () => {
+  const handleGPS = () => {
     try {
       NProgress.start();
-      await navigator.geolocation.getCurrentPosition(
+      navigator.geolocation.getCurrentPosition(
         ({ coords: { latitude, longitude } }) => {
           kakaoMap.panTo(
             new customWindow.kakao.maps.LatLng(latitude, longitude)
           );
           kakaoMap.setLevel(3);
         },
-        err => console.log(err)
+        async error => {
+          const isDesktop = typeof window.orientation === "undefined";
+          const isSafari =
+            navigator.userAgent.match(/safari/i) &&
+            !navigator.userAgent.match(/crios/i) &&
+            !navigator.userAgent.match(/NAVER/i) &&
+            typeof document.body.style.webkitFilter !== "undefined" &&
+            !window["chrome"];
+
+          if (isDesktop) {
+            window.alert(DEFAULT_GEOLOCATION_ERROR_MESSAGE);
+          } else if (isSafari) {
+            window.alert(SAFARI_GEOLOCATION_ERROR_MESSAGE);
+          } else {
+            const permission = await navigator.permissions.query({
+              name: "geolocation"
+            });
+            const message =
+              permission.state === "denied"
+                ? getLocationErrorMessage(navigator.userAgent)
+                : DEFAULT_GEOLOCATION_ERROR_MESSAGE;
+            window.alert(message);
+          }
+        }
       );
     } catch (error) {
-      window.alert(`위치 정보를 가져올 수 없습니다. GPS 옵션을 확인해주세요.`);
+      window.alert(DEFAULT_GEOLOCATION_ERROR_MESSAGE);
     } finally {
       NProgress.done();
     }
