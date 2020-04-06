@@ -41,7 +41,6 @@ const SearchFilter = () => {
             left: 0;
             top: 58px;
             width: 100vw;
-            max-width: 375px;
             height: 40px;
             @media screen and (min-width: 340px) {
               padding: 0 10px;
@@ -53,10 +52,17 @@ const SearchFilter = () => {
             border: none;
             border-radius: 15px;
             color: #fff;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 600;
             outline: none;
             z-index: 9;
+            @media screen and (min-width: 340px) {
+              font-size: 12px;
+            }
+            @media screen and (min-width: 400px) {
+              width: 90px;
+              font-size: 13px;
+            }
           }
         `}
       </style>
