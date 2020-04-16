@@ -2,7 +2,7 @@ import React from "react";
 
 import {
   useSearchState,
-  useSearchDispatch
+  useSearchDispatch,
 } from "../../lib/context/SearchContext";
 import { FILTER_LIST } from "../../lib/utils/constant";
 import convertStockToAction from "../../lib/utils/convertStockToAction";
@@ -25,7 +25,7 @@ const SearchFilter = () => {
             border: searchInfo[name]
               ? `2px solid ${converStockToBorderColor(name)}`
               : `1px solid ${converStockToBorderColor(name)}`,
-            color: searchInfo[name] ? "#fff" : convertStockToColor(name)
+            color: searchInfo[name] ? "#fff" : convertStockToColor(name),
           }}
         >
           {convertStockToString(name)}
@@ -41,6 +41,7 @@ const SearchFilter = () => {
             left: 0;
             top: 58px;
             width: 100vw;
+            max-width: 500px;
             height: 40px;
             @media screen and (min-width: 340px) {
               padding: 0 10px;
