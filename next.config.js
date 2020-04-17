@@ -6,6 +6,9 @@ const nextConfig = {
   target: "serverless",
   env: {
     KAKAO_MAP_API_KEY: process.env.KAKAO_MAP_API_KEY,
+    WEB_PUSH_PUBLIC_KEY: process.env.WEB_PUSH_PUBLIC_KEY,
+    WEB_PUSH_PRIVATE_KEY: process.env.WEB_PUSH_PRIVATE_KEY,
+    WEB_PUSH_EMAIL_ADDRESS: process.env.WEB_PUSH_EMAIL_ADDRESS,
   },
   dontAutoRegisterSw: true,
   transformManifest: (manifest) => ["/"].concat(manifest),
