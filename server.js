@@ -76,7 +76,7 @@ app
       app.serveStatic(req, res, resolve("./public/service-worker.js"));
     });
 
-    server.get("/api/search", async (req, res) => {
+    server.get("/search", async (req, res) => {
       const { term } = req.query;
 
       try {

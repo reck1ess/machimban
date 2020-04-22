@@ -5,7 +5,7 @@ import Maybe from "../common/Maybe";
 import { useMapState } from "../../lib/context/MapContext";
 import {
   useSearchDispatch,
-  useSearchState
+  useSearchState,
 } from "../../lib/context/SearchContext";
 import { useStoreDispatch } from "../../lib/context/StoreContext";
 import useDebounce from "../../lib/hooks/useDebounce";
@@ -16,7 +16,7 @@ import {
   NETWORK_DELAY,
   SEARCH_INPUT_PLACEHOLDER,
   SET_KEYWORD,
-  TOGGLE_FOCUS
+  TOGGLE_FOCUS,
 } from "../../lib/utils/constant";
 import delay from "../../lib/utils/delay";
 import notifyError from "../../lib/utils/notifyError";
@@ -35,22 +35,22 @@ const SearchInput = () => {
   let addresses = [];
   let url =
     debouncedSearchTerm.length > 1
-      ? `/api/search?term=${debouncedSearchTerm}`
+      ? `/search?term=${debouncedSearchTerm}`
       : undefined;
 
   const { data: { documents: searchedAddresses = [] } = {} } = useRequest({
-    url
+    url,
   });
 
   if (searchedAddresses) {
     addresses = searchedAddresses;
   }
 
-  const handleSearchTermChange = e => {
+  const handleSearchTermChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleSubmit = e => {
+  const handleSubmit = (e) => {
     e.preventDefault();
   };
 
